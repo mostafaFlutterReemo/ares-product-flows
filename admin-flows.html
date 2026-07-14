@@ -88,9 +88,10 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
 .legend-dot.node-condition { background: var(--bg-1); border: 1.5px dashed #6c6f7e; }
 .legend-dot.node-safe { background: rgba(122,168,136,0.2); border: 1px solid var(--safe); }
 .legend-dot.node-danger { background: rgba(215,134,85,0.14); border: 1px solid var(--warn); }
-.legend-line { width: 24px; height: 2px; background: var(--ink-3); }
-.legend-line.deep { background: var(--gold); }
-.legend-line.alternate { background: repeating-linear-gradient(90deg, #6c6f7e 0 4px, transparent 4px 7px); }
+.legend-line { position: relative; width: 24px; height: 2px; background: var(--ink-3); color: var(--ink-3); }
+.legend-line::after { content: ""; position: absolute; right: -1px; top: -3px; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid currentColor; }
+.legend-line.deep { background: var(--gold); color: var(--gold); }
+.legend-line.alternate { background: repeating-linear-gradient(90deg, #6c6f7e 0 4px, transparent 4px 7px); color: #6c6f7e; }
 .flow-notes { margin-top: 18px; padding: 20px; background: var(--bg-1); border: 1px solid var(--line); border-radius: 12px; }
 .flow-notes h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; margin-bottom: 12px; }
 .flow-notes p, .flow-notes li { color: var(--ink-2); font-size: 0.78rem; line-height: 1.65; }
@@ -182,7 +183,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
 <header class="page-head">
   <div class="page-eyebrow"><span class="page-eyebrow-dot"></span>ADMIN · MVP PRODUCT FLOWS</div>
   <h1 class="page-title">ARES admin source of truth</h1>
-  <p class="page-lead">End-to-end dashboard journeys for operating the ARES youth program: secure access, cohorts and cohort codes, participant support, program content, announcements, analytics, audit, and deletion. Cohort-code enrollment, youth safety, status-only Daily Limit, and privacy remain platform invariants; the player catalogs, XP values, bonuses, badges, rank labels, and thresholds are launch defaults managed through published admin versions.</p>
+  <p class="page-lead">End-to-end dashboard journeys for operating the ARES youth program: secure access, cohorts and cohort codes, participant support, program content, announcements, analytics, audit, and deletion. Cohort-code enrollment, youth safety, status-only Daily Limit, and privacy remain platform invariants; player-facing content, habit/challenge XP, target/full-set bonuses, badges, rank labels, and thresholds are launch defaults managed through published admin versions. Check-in XP and the separate Daily Limit reward remain fixed in MVP v1.</p>
 </header>
 
 <nav class="chapter-nav" aria-label="Page chapters">
@@ -246,7 +247,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td><strong>Invite User</strong></td><td><span class="decision-no">Remove</span></td><td>Replace with <strong>Manage Cohort Code</strong>. Admins create, copy, rotate, disable, and monitor the code; ARES sends no invitation.</td></tr>
           <tr><td><strong>Google admin sign-in</strong></td><td><span class="decision-no">Not MVP</span></td><td>Email/password is the complete MVP admin sign-in. SSO can be added later.</td></tr>
           <tr><td><strong>Variable habit/challenge XP</strong></td><td><span class="decision-yes">MVP configuration</span></td><td>Admins enter one exact whole-number XP value per version. Launch values come from the player file; changes are future-effective and never rewrite awarded events.</td></tr>
-          <tr><td><strong>Editable rank thresholds</strong></td><td><span class="decision-yes">MVP configuration</span></td><td>Super Admins can edit exact thresholds and rank presentation through a versioned ruleset with impact preview and scheduled activation.</td></tr>
+          <tr><td><strong>Editable rank thresholds</strong></td><td><span class="decision-yes">MVP configuration</span></td><td>Super or Program Admins can draft exact thresholds and rank presentation through a versioned ruleset; only a distinct Super Admin can approve and schedule activation.</td></tr>
           <tr><td><strong>Monthly challenges</strong></td><td><span class="decision-no">Remove</span></td><td>Only daily challenges and weekly missions are available.</td></tr>
           <tr><td><strong>Raw screen-time language</strong></td><td><span class="decision-no">Replace</span></td><td>Use Daily Limit and show only <code>within_limit</code>, <code>exceeded</code>, or <code>unavailable</code>. Never show minutes, apps, domains, or categories.</td></tr>
           <tr><td><strong>Mentor messages / quotes</strong></td><td><span class="decision-no">Rename</span></td><td>One-way Admin Announcements and Motivational Quotes only; there is no chat or mentor account in MVP.</td></tr>
@@ -260,7 +261,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
   </div>
 
   <div class="two-col subsection">
-    <article class="spec-card gold"><span class="card-label">PLAYER FILE IMPACT</span><h3>Values are launch defaults</h3><p>The player journey does not change, but its habit catalog, challenge catalog, XP values, bonuses, badges, and rank thresholds are the initial published configuration—not hard-coded forever. The app displays the active snapshotted version supplied by the server.</p></article>
+    <article class="spec-card gold"><span class="card-label">PLAYER FILE IMPACT</span><h3>Values are launch defaults</h3><p>The player journey does not change, but its catalogs, player-facing copy, habit/challenge XP, target/full-set bonuses, badges, and rank thresholds are the initial published configuration—not hard-coded forever. The app displays the active snapshotted version supplied by the server. Check-in XP and the separate Daily Limit reward remain fixed in MVP v1.</p></article>
     <article class="spec-card"><span class="card-label">DESIGN IMPACT</span><h3>Keep the configuration controls</h3><p>The XP and rank editors shown in the mockups are MVP features. Invitations, unsafe content, monthly challenges, and detailed screen-time concepts remain excluded.</p></article>
   </div>
 </section>
@@ -301,7 +302,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
       </svg>
       <div class="legend" aria-label="Diagram legend"><div class="legend-item"><span class="legend-dot node-condition"></span>Input, decision, or validation gate</div><div class="legend-item"><span class="legend-dot node-standard"></span>Editable or processing step</div><div class="legend-item"><span class="legend-dot node-primary"></span>Committed player-affecting outcome</div><div class="legend-item"><span class="legend-dot node-safe"></span>Controlled result or audit evidence</div><div class="legend-item"><span class="legend-dot node-danger"></span>Access-removal or destructive state</div><div class="legend-item"><span class="legend-line deep"></span>Primary path</div><div class="legend-item"><span class="legend-line alternate"></span>Reject, retry, or alternate path</div></div>
     </div>
-    <figcaption class="flow-caption">Email/password is the complete MVP admin authentication flow. Google sign-in, social login, organization SSO, and second-factor steps are not included.</figcaption>
+    <figcaption class="flow-caption">Email/password is the complete MVP admin authentication flow. Google sign-in, social login, and organization SSO are not included.</figcaption>
   </figure>
 
   <div class="flow-notes">
@@ -314,6 +315,8 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
       <li><span class="step-num">05</span><span>Support default, validation, submitting, incorrect credentials, rate-limited, locked, reset sent, session expired, revoked, and service-error states.</span></li>
     </ol>
   </div>
+
+  <div class="callout"><strong>Atomic cohort program package:</strong> activation creates one immutable, effective-dated <code>CohortProgramVersion</code> that pins the habit catalog and assignments, target/full-set configuration, challenge schedule and definitions, gamification ruleset, badge set, growth-area/copy bundle, and Daily Limit policy version. Compatibility validation blocks missing locales, unapproved or retired references, gaps/overlaps, unsafe content, impossible targets, or conflicting effective times. At a future 02:00 cohort boundary one transaction supersedes the prior package and activates the new package; all new program-day snapshots and challenge occurrences store its ID. Open days and already-published occurrences keep the previous package. Rollback publishes another complete package—never a partial mix or in-place edit.</div>
 
   <div class="subsection">
     <h3 class="subsection-title">Role and permission matrix</h3>
@@ -328,9 +331,11 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td><strong>View/report check-in answers</strong></td><td>Yes</td><td>Yes</td><td>No</td><td>Suppressed aggregates only</td></tr>
           <tr><td><strong>Deactivate, reactivate, reassign</strong></td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr>
           <tr><td><strong>Request / approve deletion</strong></td><td>Request + approve</td><td>Request only</td><td>No</td><td>No</td></tr>
-          <tr><td><strong>Draft youth-facing content</strong></td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td></tr>
-          <tr><td><strong>Edit XP values and rank rules</strong></td><td>Draft + publish</td><td>Draft + impact preview</td><td>No</td><td>Read only</td></tr>
-          <tr><td><strong>Safety-approve and publish</strong></td><td>Yes, not own draft</td><td>Yes, not own draft</td><td>No</td><td>No</td></tr>
+          <tr><td><strong>Draft youth-facing content</strong></td><td>Yes</td><td>Yes</td><td>Yes; economy remains incomplete</td><td>No</td></tr>
+          <tr><td><strong>Edit habit/challenge XP and bonuses</strong></td><td>Draft + review + publish; not own draft</td><td>Draft + impact preview; review if not author</td><td>No; hands off an <code>economy_incomplete</code> draft</td><td>Read only</td></tr>
+          <tr><td><strong>Edit rank rules</strong></td><td>Draft + review + publish; not own draft</td><td>Draft + impact preview</td><td>No</td><td>Read only</td></tr>
+          <tr><td><strong>Safety-approve and publish content</strong></td><td>Yes, not own draft</td><td>Yes, not own draft</td><td>No</td><td>No</td></tr>
+          <tr><td><strong>Activate program/economy/rank bundle</strong></td><td>Yes, after distinct review</td><td>No</td><td>No</td><td>No</td></tr>
           <tr><td><strong>Send announcements</strong></td><td>Yes</td><td>Yes</td><td>Draft only</td><td>No</td></tr>
           <tr><td><strong>Analytics / exports</strong></td><td>Full</td><td>Program scope</td><td>Content metrics</td><td>Suppressed aggregate export</td></tr>
           <tr><td><strong>Audit Log</strong></td><td>Full</td><td>Organization scope</td><td>Own actions</td><td>Own exports</td></tr>
@@ -386,7 +391,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
       <li><span class="step-num">01</span><span>Create a draft with name, immutable internal ID, city/region if needed for reporting, IANA timezone, program start and end dates, capacity, and enrollment eligibility.</span></li>
       <li><span class="step-num">02</span><span>Review or edit the launch-default habits, exact XP values, daily-target count/eligibility/bonus, required full set and bonus, daily challenge schedule, weekly mission catalog, rank thresholds, badges, check-in prompts, weekly motto, motivational copy, and announcement defaults.</span></li>
       <li><span class="step-num">03</span><span>Set the Daily Limit threshold and future effective program date. The threshold is policy data; no observed usage time is received.</span></li>
-      <li><span class="step-num">04</span><span>Run readiness validation: complete EN/NL copy, at least six assigned non-H10 habits, valid schedule, approved safety review, capacity, date order, and no conflicting effective versions.</span></li>
+      <li><span class="step-num">04</span><span>Run readiness validation against the selected program package: complete EN/NL copy, enough assigned target-eligible habits for its exact target count, a valid required full set, valid schedule, approved safety review, capacity, date order, and no conflicting effective versions.</span></li>
       <li><span class="step-num">05</span><span>Activate. Archive later to stop new enrollment and future assignments while keeping historic memberships, events, and reporting intact.</span></li>
     </ol>
   </div>
@@ -551,7 +556,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
   <div class="subsection">
     <h3 class="subsection-title">Habit management</h3>
     <div class="two-col">
-      <article class="spec-card gold"><span class="card-label">MVP CONTROLS</span><h3>Create and configure habits</h3><ul class="rule-list"><li>Create, duplicate, edit, enable, disable, reorder, and assign habits by cohort.</li><li>Manage reviewed EN/NL name, description, completion criterion, growth area, icon, and display category.</li><li>Enter one exact whole-number XP value for each habit version; no range field is used.</li><li>Configure target-eligible habits, the exact daily-target count and bonus, the required full set, and its additional bonus. Launch defaults are six eligible habits for +50 and the complete required set for another +50.</li></ul></article>
+      <article class="spec-card gold"><span class="card-label">MVP CONTROLS</span><h3>Create and configure habits</h3><ul class="rule-list"><li>Create, duplicate, edit, enable, disable, reorder, and assign habits by cohort.</li><li>Manage reviewed EN/NL name, description, completion criterion, one stable growth-area ID, icon, and display category. The five growth-area IDs remain a fixed reporting taxonomy; their localized labels/copy are versioned.</li><li>Enter one exact whole-number XP value for each habit version; no range field is used.</li><li>Configure target-eligible habits, the exact daily-target count and bonus, the required full set, and its additional bonus. Launch defaults are six eligible habits for +50 and the complete required set for another +50.</li></ul></article>
       <article class="spec-card"><span class="card-label">HISTORY CONTROLS</span><h3>Change the future, preserve the past</h3><ul class="rule-list"><li>Published or referenced habits are disabled, archived, or superseded—not destructively deleted.</li><li>XP and content changes create a new version with a future effective program-day boundary.</li><li>Today’s assignment and reward values remain frozen in the day snapshot.</li><li>A Daily Limit habit remains system-completed only from a finalized <code>within_limit</code> result.</li></ul></article>
     </div>
     <div class="table-wrap subsection" tabindex="0" aria-label="Scrollable launch-default habit table">
@@ -622,20 +627,34 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
       <table class="spec-table">
         <thead><tr><th scope="col">Source</th><th scope="col">Launch default</th><th scope="col">MVP admin control</th><th scope="col">Frequency</th><th scope="col">Leaderboard</th></tr></thead>
         <tbody>
-          <tr><td><strong>Assigned habit</strong></td><td class="num">+5</td><td>Exact XP per habit version</td><td>Each once per program day</td><td>Configurable eligibility; H10 default excluded</td></tr>
+          <tr><td><strong>Assigned habit</strong></td><td class="num">+5</td><td>Exact XP per habit version</td><td>Each once per program day</td><td>Configurable for non-Daily-Limit habits; H10 always excluded</td></tr>
           <tr><td><strong>Daily habit target</strong></td><td class="num">6 eligible · +50</td><td>Eligible set, exact target count, exact milestone bonus</td><td>Once per day</td><td>Default yes</td></tr>
           <tr><td><strong>Full-set completion</strong></td><td class="num">+50</td><td>Exact additional milestone bonus</td><td>Once per day; cumulative with target</td><td>Default no</td></tr>
           <tr><td><strong>Morning check-in</strong></td><td class="num">+5</td><td>Launch value retained in MVP v1</td><td>Once per program date</td><td>Yes</td></tr>
           <tr><td><strong>Evening check-in</strong></td><td class="num">+5</td><td>Launch value retained in MVP v1</td><td>Once per program date; no pair bonus</td><td>Yes</td></tr>
           <tr><td><strong>Daily challenge</strong></td><td class="num">+30</td><td>Exact XP per challenge version</td><td>Each once; maximum five per day</td><td>Configurable eligibility</td></tr>
-          <tr><td><strong>Weekly mission</strong></td><td class="num">+400</td><td>Exact XP per mission version</td><td>One joined mission per week</td><td>Configurable; Within-Limit Week default excluded</td></tr>
+          <tr><td><strong>Weekly mission</strong></td><td class="num">+400</td><td>Exact XP per mission version</td><td>One joined mission per week</td><td>Configurable unless Daily-Limit-derived; Within-Limit Week always excluded</td></tr>
           <tr><td><strong>Final Daily Limit: within limit</strong></td><td class="num">+130</td><td>Launch value retained in MVP v1</td><td>Once after finalization</td><td>No</td></tr>
           <tr><td><strong>Badge or level</strong></td><td class="num">0</td><td>Badge definitions editable; no XP award</td><td>Configured trigger</td><td>No</td></tr>
           <tr><td><strong>Verified correction</strong></td><td class="num">±</td><td>Not an economy editor</td><td>Compensating ledger event only</td><td>No</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="callout"><strong>Configuration rule:</strong> XP controls accept one exact whole-number value, never a range. Draft changes require an impact preview and future effective date. Habit values, target eligibility/count/bonus, the required full set/full-set bonus, and leaderboard/streak flags freeze when the program day opens; challenge values freeze on the published occurrence; awarded ledger events always retain their original amount and ruleset version.</div>
+    <div class="callout"><strong>Configuration rule:</strong> XP controls accept one exact whole-number value, never a reward range. Draft changes require an impact preview and future effective date. Habit values, target eligibility/count/bonus, the required full set/full-set bonus, and eligible non-Daily-Limit leaderboard/streak flags freeze when the program day opens; challenge values freeze on the published occurrence; awarded ledger events always retain their original amount and ruleset version. H10, the Daily Limit reward, Within-Limit Week, and every Daily-Limit-derived bonus are always leaderboard-ineligible.</div>
+    <div class="table-wrap subsection" tabindex="0" aria-label="Scrollable XP validation limits table">
+      <table class="spec-table">
+        <caption>Publish-blocking XP validation limits; each definition still stores one exact value</caption>
+        <thead><tr><th scope="col">Configured field</th><th scope="col">Minimum allowed</th><th scope="col">Maximum allowed</th><th scope="col">Additional publication guard</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Habit XP</strong></td><td class="num">0</td><td class="num">100</td><td>Zero means a valid non-XP habit; negative values are never configuration.</td></tr>
+          <tr><td><strong>Daily challenge XP</strong></td><td class="num">0</td><td class="num">500</td><td>Maximum five occurrences per program day remains enforced.</td></tr>
+          <tr><td><strong>Weekly mission XP</strong></td><td class="num">0</td><td class="num">5,000</td><td>One joined mission per player/program week remains enforced.</td></tr>
+          <tr><td><strong>Target or full-set bonus</strong></td><td class="num">0</td><td class="num">1,000</td><td>Target count is at least 1 and cannot exceed target-eligible assignments.</td></tr>
+          <tr><td><strong>Computed recurring program-day maximum</strong></td><td class="num">0</td><td class="num">5,000</td><td>Sum every scheduled habit, bonus, check-in, daily challenge, and Daily Limit source.</td></tr>
+          <tr><td><strong>Computed seven-day settlement maximum</strong></td><td class="num">0</td><td class="num">25,000</td><td>Includes all daily sources and the largest weekly mission that can settle.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="subsection">
@@ -661,6 +680,36 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
     <div class="callout"><strong>Ruleset publication:</strong> draft → impact preview → distinct authorized review → scheduled → active → superseded. The preview recalculates configured daily/weekly maxima, time-to-rank, and every projected promotion or demotion. Publishing activates at a future 02:00 cohort boundary, rebuilds current projections without changing lifetime XP, and never reprices historic ledger events. Rollback publishes another version rather than overwriting the prior one.</div>
   </div>
 
+  <figure class="subsection">
+    <div class="flow-canvas dense" tabindex="0" aria-label="Scrollable diagram: atomic program-version activation">
+      <svg class="flow-svg" viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="bundle-title bundle-desc">
+        <title id="bundle-title">Atomic cohort program-version activation</title>
+        <desc id="bundle-desc">Approved catalog, economy, rank, badge, copy and policy versions are pinned into one cohort package, compatibility-validated, impact-previewed, reviewed by a distinct Super Admin, scheduled, and activated atomically with audit evidence.</desc>
+        <defs>
+          <marker id="bundle-gold" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+          <marker id="bundle-neutral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+        </defs>
+        <rect class="node-standard" x="18" y="72" width="130" height="108" rx="10"/><text class="node-meta" x="83" y="98" text-anchor="middle">APPROVED INPUTS</text><text class="node-title" x="83" y="126" text-anchor="middle">PIN VERSIONS</text><text class="edge-note" x="83" y="150" text-anchor="middle">catalog · XP · ranks</text>
+        <line class="edge-primary" x1="148" y1="126" x2="178" y2="126" marker-end="url(#bundle-gold)"/>
+        <rect class="node-standard" x="188" y="62" width="145" height="128" rx="10"/><text class="node-meta" x="260" y="88" text-anchor="middle">COHORT PACKAGE</text><text class="node-title" x="260" y="116" text-anchor="middle">DRAFT BUNDLE</text><text class="edge-note" x="260" y="142" text-anchor="middle">one effective version ID</text><text class="edge-note" x="260" y="158" text-anchor="middle">complete, never partial</text>
+        <line class="edge-primary" x1="333" y1="126" x2="363" y2="126" marker-end="url(#bundle-gold)"/>
+        <rect class="node-condition" x="373" y="62" width="135" height="128" rx="10"/><text class="node-meta" x="440" y="88" text-anchor="middle">BLOCKING GATE</text><text class="node-title" x="440" y="116" text-anchor="middle">COMPATIBLE?</text><text class="edge-note" x="440" y="142" text-anchor="middle">locale · safety · dates</text><text class="edge-note" x="440" y="158" text-anchor="middle">target · limits · status</text>
+        <line class="edge-primary" x1="508" y1="126" x2="538" y2="126" marker-end="url(#bundle-gold)"/>
+        <rect class="node-standard" x="548" y="62" width="135" height="128" rx="10"/><text class="node-meta" x="615" y="88" text-anchor="middle">CALCULATE</text><text class="node-title" x="615" y="116" text-anchor="middle">IMPACT PREVIEW</text><text class="edge-note" x="615" y="142" text-anchor="middle">max XP · rank movement</text><text class="edge-note" x="615" y="158" text-anchor="middle">cohorts · player copy</text>
+        <line class="edge-primary" x1="683" y1="126" x2="713" y2="126" marker-end="url(#bundle-gold)"/>
+        <rect class="node-condition" x="723" y="62" width="125" height="128" rx="10"/><text class="node-meta" x="785" y="88" text-anchor="middle">SUPER ADMIN</text><text class="node-title" x="785" y="116" text-anchor="middle">DISTINCT REVIEW</text><text class="edge-note" x="785" y="142" text-anchor="middle">reason · communication</text><text class="edge-note" x="785" y="158" text-anchor="middle">future 02:00 boundary</text>
+        <line class="edge-primary" x1="848" y1="126" x2="878" y2="126" marker-end="url(#bundle-gold)"/>
+        <rect class="node-primary" x="888" y="76" width="94" height="100" rx="10"/><text class="node-meta-dark" x="935" y="103" text-anchor="middle">TRANSACTION</text><text class="node-title-dark" x="935" y="131" text-anchor="middle">ACTIVATE</text><text class="edge-note" x="935" y="154" text-anchor="middle" style="fill:#1a1305">atomic package</text>
+        <path class="edge-neutral" d="M785 190 L785 224 L260 224 L260 190" marker-end="url(#bundle-neutral)"/>
+        <text class="edge-note" x="522" y="216" text-anchor="middle">reject or validation failure returns the complete bundle for revision</text>
+        <line class="edge-primary" x1="935" y1="176" x2="935" y2="230" marker-end="url(#bundle-gold)"/>
+        <rect class="node-safe" x="820" y="238" width="162" height="48" rx="10"/><text class="node-meta" x="901" y="258" text-anchor="middle">CONTROLLED RESULT</text><text class="node-title" x="901" y="277" text-anchor="middle">AUDIT + SNAPSHOT ID</text>
+      </svg>
+      <div class="legend" aria-label="Diagram legend"><div class="legend-item"><span class="legend-dot node-condition"></span>Input, decision, or validation gate</div><div class="legend-item"><span class="legend-dot node-standard"></span>Editable or processing step</div><div class="legend-item"><span class="legend-dot node-primary"></span>Committed player-affecting outcome</div><div class="legend-item"><span class="legend-dot node-safe"></span>Controlled result or audit evidence</div><div class="legend-item"><span class="legend-dot node-danger"></span>Access-removal or destructive state</div><div class="legend-item"><span class="legend-line deep"></span>Primary path</div><div class="legend-item"><span class="legend-line alternate"></span>Reject, retry, or alternate path</div></div>
+    </div>
+    <figcaption class="flow-caption">AD-F07 · A cohort activates one complete program package atomically. No player can receive a mixed catalog, XP, badge, rank, copy, or policy release.</figcaption>
+  </figure>
+
   <div class="subsection">
     <h3 class="subsection-title">Content library</h3>
     <div class="table-wrap" tabindex="0" aria-label="Scrollable content type table">
@@ -670,12 +719,14 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td><strong>Daily prompts</strong></td><td>Draft, duplicate, review, schedule, publish, retire.</td><td>EN/NL, age-appropriate, neutral, no diagnosis or forced disclosure.</td><td>Morning/evening check-in.</td></tr>
           <tr><td><strong>Weekly motto</strong></td><td>Select one effective version per cohort/week.</td><td>EN/NL and no overlapping scheduled version.</td><td>Home and weekly summary.</td></tr>
           <tr><td><strong>Motivational quotes</strong></td><td>Draft, review, publish, retire.</td><td>Rename mock “Mentor quotes”; no implied mentor relationship.</td><td>Home motivation cards.</td></tr>
+          <tr><td><strong>Growth-area presentation</strong></td><td>Version EN/NL label, description, order, and icon for the five stable area IDs.</td><td>Stable IDs cannot be added, deleted, or repurposed in MVP.</td><td>28-Day Growth Practice and profile.</td></tr>
           <tr><td><strong>Badge definitions</strong></td><td>Create and manage localized name, copy, icon, tier, and supported trigger version.</td><td>Presentation and trigger belong to the same version; badge awards 0 XP.</td><td>Badge detail and Inbox.</td></tr>
-          <tr><td><strong>App copy</strong></td><td>Manage approved remote-copy keys.</td><td>Only allow-listed keys; fallback bundled in app.</td><td>Approved dynamic content surfaces.</td></tr>
+          <tr><td><strong>App copy</strong></td><td>Manage EN/NL values for every player-facing key in the typed remote-copy registry.</td><td>Keys, routes, schemas, variables, safety behavior, privacy behavior, and bundled fallback are controlled by the build and cannot be invented in the dashboard.</td><td>Every allow-listed player-facing content surface.</td></tr>
           <tr><td><strong>Announcement templates</strong></td><td>Draft localized reusable copy.</td><td>One-way, safe link, no sensitive data in lock-screen copy.</td><td>Inbox and optional push.</td></tr>
         </tbody>
       </table>
     </div>
+    <div class="callout"><strong>Complete content control:</strong> every player-facing string, prompt, label, criterion, explanation, badge description, notification template, and motivational item resolves from an <code>AppCopyVersion</code> or a typed definition version included in the active <code>CohortProgramVersion</code>. Admins can edit its EN/NL value; they cannot change the stable key, route, schema, placeholder contract, completion source, security/privacy rule, or native-system behavior.</div>
     <div class="callout"><strong>Lifecycle:</strong> <code>draft → review → approved → scheduled → published → paused/retired</code>. The author cannot approve their own youth-facing content. A scheduled or published version is immutable; editing creates a new draft.</div>
   </div>
 </section>
@@ -865,7 +916,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
       <figcaption class="flow-caption">AD-F10 · Admins set policy but cannot choose a participant’s result, enter usage, or mint the reward manually.</figcaption>
     </figure>
     <div class="two-col subsection">
-      <article class="spec-card gold"><span class="card-label">POLICY DATA</span><h3>Effective-dated cohort rule</h3><ul class="rule-list"><li>Cohort, threshold minutes, IANA timezone, effective program date, status, creator, publisher, and version.</li><li>One effective version at a time; replacement starts at a future 02:00 boundary.</li><li>Show affected cohort, policy version, and linked gamification version before publishing.</li><li>The Daily Limit-linked habit uses its exact HabitVersion XP; the separate +130 reward remains the launch default unless its ruleset field is explicitly changed.</li></ul></article>
+      <article class="spec-card gold"><span class="card-label">POLICY DATA</span><h3>Effective-dated cohort rule</h3><ul class="rule-list"><li>Cohort, threshold minutes, IANA timezone, effective program date, status, creator, publisher, and version.</li><li>One effective version at a time; replacement starts at a future 02:00 boundary.</li><li>Show affected cohort, policy version, and linked program/gamification versions before publishing.</li><li>The Daily Limit-linked habit uses its exact HabitVersion XP. The separate +130 reward is fixed and not admin-editable in MVP v1; it and every Daily-Limit-derived source are always leaderboard-ineligible.</li></ul></article>
       <article class="spec-card"><span class="card-label">RESULT DATA</span><h3>Three values, no raw usage</h3><ul class="rule-list"><li><code>within_limit</code>, <code>exceeded</code>, or <code>unavailable</code>, plus program date, version, and finalization evidence.</li><li>No observed minutes, remaining minutes, progress percentage, installed apps, app names, categories, domains, content, or browsing history.</li><li>Admin correction is reserved for verified processing error and cannot invent a within-limit status.</li><li>Unavailable freezes the within-limit streak and awards nothing.</li></ul></article>
     </div>
   </div>
@@ -906,6 +957,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td><strong>Cohort and code</strong></td><td>Created, updated, activated, archived; code generated, copied, rotated, disabled</td><td>Cohort/version and safe code fingerprint; never raw code.</td></tr>
           <tr><td><strong>Participant</strong></td><td>Viewed sensitive record, check-in viewed/exported, reassigned, deactivated, reactivated</td><td>Target, fields/category, purpose, old/new membership/state.</td></tr>
           <tr><td><strong>Program content</strong></td><td>Drafted, submitted, approved, rejected, scheduled, published, paused, retired</td><td>Content/version, author, reviewer, target cohorts, effective time.</td></tr>
+          <tr><td><strong>Economy, rank, and program package</strong></td><td>Drafted, impact previewed, reviewed, rejected, scheduled, activated, superseded, rolled back</td><td>Constituent version IDs, target cohorts, exact XP/rank diff, computed day/week maximum, projected promotions/demotions, author, distinct reviewer, reason, effective boundary, outcome.</td></tr>
           <tr><td><strong>Daily Limit</strong></td><td>Policy scheduled/published/superseded; verified correction</td><td>Policy version, cohort, safe before/after; no raw telemetry.</td></tr>
           <tr><td><strong>Rewards</strong></td><td>XP correction created/reversed; erroneous badge revoked</td><td>Source event, compensating delta, evidence, reason, idempotency key.</td></tr>
           <tr><td><strong>Announcements</strong></td><td>Drafted, validated, scheduled, cancelled, sent, retried</td><td>Campaign/version, audience definition, counts, schedule, outcome.</td></tr>
@@ -991,9 +1043,9 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td class="num">A03</td><td><strong>Users</strong></td><td>Search/filter/paginate self-enrolled accounts; Manage Cohort Code entry.</td><td>Empty, filtered empty, deactivated, deletion pending, stale, error.</td></tr>
           <tr><td class="num">A04</td><td><strong>User detail</strong></td><td>Identity, membership, check-ins, progress, Daily Limit status, lifecycle actions.</td><td>No permission, not found, deactivated, deletion pending, partial data, conflict.</td></tr>
           <tr><td class="num">A05</td><td><strong>Cohorts</strong></td><td>List/compare, create/manage, readiness, code create/rotate/disable, archive.</td><td>Draft, active, archived, no code, expired/full code, validation blocked.</td></tr>
-          <tr><td class="num">A06</td><td><strong>Habits</strong></td><td>Create/version catalog, exact XP, completion content, assignment, order, locale, and metrics.</td><td>Draft, unassigned, scheduled, superseded, retired, conflict, no permission.</td></tr>
-          <tr><td class="num">A07</td><td><strong>Challenges</strong></td><td>Daily/weekly draft, safety review, schedule, publish, pause, retire.</td><td>Draft, rejected, in review, approved, scheduled, live, paused, expired, reported.</td></tr>
-          <tr><td class="num">A08</td><td><strong>Badges &amp; Levels</strong></td><td>Create/version badges and edit exact level/rank thresholds, labels, and presentation.</td><td>Draft, impact preview, review, scheduled, active, superseded, conflict.</td></tr>
+          <tr><td class="num">A06</td><td><strong>Habits</strong></td><td>Create/version catalog, exact XP, target/streak/leaderboard eligibility, target count/bonus, required full set/bonus, growth-area mapping, assignment, order, locale, and metrics.</td><td>Draft, economy incomplete, impossible target, unassigned, scheduled, superseded, retired, conflict, no permission.</td></tr>
+          <tr><td class="num">A07</td><td><strong>Challenges</strong></td><td>Daily/weekly definition, exact XP/leaderboard eligibility, maximum-XP preview, safety review, schedule, publish, pause, retire.</td><td>Draft, economy incomplete, limit exceeded, rejected, in review, approved, scheduled, live, paused, expired, reported.</td></tr>
+          <tr><td class="num">A08</td><td><strong>Program Rules, Badges &amp; Levels</strong></td><td>Create/version badges; edit exact level/rank thresholds, labels, and presentation; assemble, compatibility-check, impact-preview, review, schedule, and atomically activate the complete <code>CohortProgramVersion</code>.</td><td>Draft, incompatible, impact preview, review, rejected, scheduled, active, superseded, rollback, conflict.</td></tr>
           <tr><td class="num">A09</td><td><strong>Content Library</strong></td><td>Prompts, motto, motivational quotes, badge descriptions, app copy.</td><td>Draft, incomplete locale, review, rejected, scheduled, published, paused, retired.</td></tr>
           <tr><td class="num">A10</td><td><strong>Notifications</strong></td><td>Announcement compose/preview/send/schedule and automated-template history.</td><td>Draft, validation error, scheduled, sending, partial, failed, cancelled.</td></tr>
           <tr><td class="num">A11</td><td><strong>Analytics</strong></td><td>Canonical metrics, filters, comparisons, suppression, governed CSV export.</td><td>No data, suppressed, stale, job queued, job failed, expired download.</td></tr>
@@ -1016,7 +1068,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
     <h3 class="subsection-title">Definition of Done</h3>
     <div class="spec-grid">
       <article class="spec-card gold"><span class="card-label">JOURNEYS</span><h3>All paths are implemented</h3><ul class="rule-list"><li>Every flow in this file has actor, permission, prerequisite, main path, denial, error, retry, completion, player effect, and audit event.</li><li>Cohort-code tests cover normalization, invalid/expired/disabled/full, cooldown, last-seat concurrency, reservation expiry, duplicate email, rotation, and existing-member continuity.</li><li>No invitation state, pending invite, or invite delivery exists.</li></ul></article>
-      <article class="spec-card"><span class="card-label">PROGRAM RULES</span><h3>Admin and player agree</h3><ul class="rule-list"><li>At least two catalog/economy/rank versions pass boundary activation, day/occurrence snapshots, historic ledger preservation, impact preview, projection rebuild, and rollback tests.</li><li>Daily and weekly are the only challenge types; each challenge and habit uses one exact configured XP value.</li><li>English and Dutch validation, two-person safety review, future effective dates, and immutable published versions pass.</li></ul></article>
+      <article class="spec-card"><span class="card-label">PROGRAM RULES</span><h3>Admin and player agree</h3><ul class="rule-list"><li>At least two complete <code>CohortProgramVersion</code> packages pass compatibility checks, atomic boundary activation, day/occurrence snapshots, historic ledger preservation, impact preview, projection rebuild, and rollback tests without mixed constituent versions.</li><li>Daily and weekly are the only challenge types; each challenge and habit uses one exact configured XP value and every field/source/aggregate maximum passes the published limits.</li><li>English and Dutch validation, two-person safety review, future effective dates, immutable published versions, growth-area snapshots, and remote-copy fallback pass.</li></ul></article>
       <article class="spec-card"><span class="card-label">PRIVACY &amp; SECURITY</span><h3>Proven by negative tests</h3><ul class="rule-list"><li>Password authentication, RBAC, organization isolation, session revocation, rate limits, sensitive-view audit, export guards, and deletion cascade pass.</li><li>Schema/log/export scans find no raw Daily Limit telemetry or raw cohort codes.</li><li>Authorized check-in-answer access is tested; all other roles are denied.</li></ul></article>
       <article class="spec-card"><span class="card-label">OPERATIONS</span><h3>The organization can run the MVP</h3><ul class="rule-list"><li>Dashboard and CSV fixture parity, canonical metric definitions, suppression, formula escaping, download expiry, and audit pass.</li><li>Content rejection, campaign cancellation/retry, account deactivation/reactivation, export failure, and deletion partial-retry runbooks are rehearsed.</li><li>No unresolved critical/high privacy, security, data-loss, or youth-safety issue remains.</li></ul></article>
     </div>
@@ -1031,7 +1083,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
     </div>
   </div>
 
-  <div class="callout warning"><strong>Player-file consistency:</strong> the visible player journeys remain the same, but all catalog, XP, bonus, badge, rank-label, and rank-threshold values shown there are launch defaults. The mobile app must render the server-provided active version and retain the source snapshot for every completed action.</div>
+  <div class="callout warning"><strong>Player-file consistency:</strong> the visible player journeys remain the same, but its catalog, player-facing copy, habit/challenge XP, target/full-set bonus, badge, rank-label, and rank-threshold values are launch defaults. The mobile app must render the server-provided active <code>CohortProgramVersion</code> and retain its definition/occurrence/day snapshots for every completed action. Check-in XP and the separate +130 Daily Limit reward remain fixed in MVP v1.</div>
 </section>
 
 </main>
