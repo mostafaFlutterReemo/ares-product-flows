@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ARES MVP player journeys, business rules, states, privacy, data, rewards, and launch requirements.">
+<title>ARES · Product Flows &amp; Business Requirements</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&display=swap');
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-0: #030509; --bg-1: #0a0d16; --bg-2: #10141f;
+  --surface: #141a28; --surface-2: #1c2338;
+  --line: rgba(240,234,214,0.07); --line-strong: rgba(240,234,214,0.14);
+  --ink: #f0ead6; --ink-2: #a8a495; --ink-3: #8b8d9b; --ink-4: #55586b;
+  --gold: #d4a24a; --gold-deep: #9a7521; --gold-glow: rgba(212,162,74,0.2);
+}
+html { scroll-behavior: smooth; }
+@view-transition { navigation: auto; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg-0);
+  background-image: radial-gradient(ellipse at top, rgba(212,162,74,0.06) 0%, transparent 50%);
+  color: var(--ink); line-height: 1.6; min-height: 100vh;
+}
+.skip-link { position: fixed; left: 16px; top: -60px; z-index: 1000; padding: 10px 14px; border-radius: 8px; background: var(--gold); color: #1a1305; font-weight: 800; text-decoration: none; }
+.skip-link:focus { top: 16px; }
+
+.topnav { position: sticky; top: 0; z-index: 100; background: rgba(3,5,9,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--line); padding: 14px 40px; display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 4px; color: var(--ink); text-decoration: none; }
+.brand-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 8px var(--gold); }
+.brand-sub { color: var(--ink-3); font-weight: 400; margin-left: 4px; letter-spacing: 2px; font-size: 0.7rem; }
+.topnav-links { display: flex; gap: 24px; align-items: center; font-family: 'Bebas Neue', sans-serif; font-size: 0.7rem; letter-spacing: 2px; }
+.topnav-links a { color: var(--ink-3); flex: 0 0 auto; text-decoration: none; transition: color 0.2s; }
+.topnav-links a:hover, .topnav-links a.active { color: var(--gold); }
+.topnav-back { padding: 6px 12px; border: 1px solid var(--line-strong); border-radius: 6px; color: var(--ink-2); text-decoration: none; font-family: 'Bebas Neue', sans-serif; font-size: 0.65rem; letter-spacing: 1.5px; }
+.topnav-back:hover { border-color: var(--gold); color: var(--gold); }
+
+.page-head { max-width: 1100px; margin: 0 auto; padding: 60px 40px 40px; }
+.page-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; background: rgba(212,162,74,0.1); border: 1px solid rgba(212,162,74,0.3); border-radius: 50px; color: var(--gold); font-family: 'Bebas Neue', sans-serif; font-size: 0.65rem; letter-spacing: 2.5px; margin-bottom: 18px; }
+.page-eyebrow-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; box-shadow: 0 0 6px var(--gold); }
+.page-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1; letter-spacing: -1.5px; margin-bottom: 14px; }
+.page-lead { font-size: 1rem; color: var(--ink-2); max-width: 640px; line-height: 1.6; }
+
+.section { max-width: 1100px; margin: 0 auto; padding: 30px 40px; }
+.section-head { margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.section-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px; }
+.section-desc { color: var(--ink-2); font-size: 0.85rem; margin-top: 6px; max-width: 720px; }
+
+.flow-canvas {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 32px;
+  overflow-x: auto;
+  min-height: 300px;
+}
+.flow-canvas:focus-visible, .table-wrap:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.flow-canvas svg {
+  display: block; margin: 0 auto;
+  width: 100%; max-width: 1000px;
+}
+
+/* Legend */
+.legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.75rem; color: var(--ink-2);
+}
+.legend-dot {
+  width: 14px; height: 14px;
+  border-radius: 4px;
+}
+.legend-dot.node-primary { background: var(--gold); }
+.legend-dot.node-standard { background: var(--surface-2); border: 1px solid var(--line-strong); }
+.legend-dot.node-entry { background: var(--bg-1); border: 1.5px solid var(--gold); }
+.legend-dot.node-modal { background: linear-gradient(135deg, var(--gold), var(--gold-deep)); }
+.legend-line {
+  width: 24px; height: 2px; background: var(--ink-3);
+}
+.legend-line.deep { background: var(--gold); }
+
+/* Long-form product requirements */
+.chapter-nav {
+  max-width: 1020px; margin: 0 auto 8px; padding: 0 40px 20px;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.chapter-nav, .flow-canvas, .table-wrap { scrollbar-width: thin; scrollbar-color: rgba(212,162,74,0.38) transparent; }
+.chapter-nav::-webkit-scrollbar, .flow-canvas::-webkit-scrollbar, .table-wrap::-webkit-scrollbar { height: 6px; }
+.chapter-nav::-webkit-scrollbar-track, .flow-canvas::-webkit-scrollbar-track, .table-wrap::-webkit-scrollbar-track { background: transparent; }
+.chapter-nav::-webkit-scrollbar-thumb, .flow-canvas::-webkit-scrollbar-thumb, .table-wrap::-webkit-scrollbar-thumb { background: rgba(212,162,74,0.32); border-radius: 999px; }
+.chapter-nav a {
+  padding: 7px 11px; border: 1px solid var(--line-strong); border-radius: 50px;
+  color: var(--ink-2); text-decoration: none; font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.62rem; letter-spacing: 1.6px; transition: 0.2s ease;
+}
+.chapter-nav a:hover { color: var(--gold); border-color: rgba(212,162,74,0.45); background: rgba(212,162,74,0.06); }
+.section[id] { scroll-margin-top: 88px; }
+.section-kicker {
+  font-family: 'Bebas Neue', sans-serif; color: var(--gold); font-size: 0.62rem;
+  letter-spacing: 2px; margin-bottom: 5px;
+}
+.summary-grid, .spec-grid, .two-col, .three-col {
+  display: grid; gap: 14px;
+}
+.summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.spec-grid, .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.spec-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; min-width: 0;
+}
+.spec-card.gold { border-color: rgba(212,162,74,0.3); background: linear-gradient(145deg, rgba(212,162,74,0.09), var(--surface)); }
+.spec-card h3, .subsection-title {
+  font-family: 'Space Grotesk', sans-serif; font-size: 1rem; line-height: 1.25;
+  letter-spacing: -0.2px; margin-bottom: 8px;
+}
+.spec-card p, .spec-card li { color: var(--ink-2); font-size: 0.78rem; line-height: 1.65; }
+.card-label {
+  display: block; color: var(--gold); font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1.8px; font-size: 0.58rem; margin-bottom: 7px;
+}
+.metric-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.55rem; font-weight: 800; color: var(--ink); line-height: 1; }
+.metric-label { color: var(--ink-3); font-size: 0.67rem; margin-top: 7px; }
+.callout {
+  margin-top: 16px; padding: 16px 18px; border-left: 3px solid var(--gold);
+  border-radius: 0 12px 12px 0; background: rgba(212,162,74,0.07);
+  color: var(--ink-2); font-size: 0.8rem; line-height: 1.65;
+}
+.callout strong { color: var(--gold); }
+.callout.privacy { border-left-color: #7aa888; background: rgba(122,168,136,0.07); }
+.callout.privacy strong { color: #9cc5a7; }
+.callout.warning { border-left-color: #d78655; background: rgba(215,134,85,0.07); }
+.callout.warning strong { color: #e9a47c; }
+.flow-notes {
+  margin-top: 18px; padding: 20px; background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.flow-notes h3 { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; margin-bottom: 12px; }
+.flow-notes p, .flow-notes li { color: var(--ink-2); font-size: 0.78rem; line-height: 1.65; }
+.flow-steps { list-style: none; display: grid; gap: 9px; }
+.flow-steps li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; }
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(212,162,74,0.12); border: 1px solid rgba(212,162,74,0.3);
+  color: var(--gold); font: 0.58rem 'JetBrains Mono', monospace;
+}
+.rule-list { list-style: none; display: grid; gap: 7px; }
+.rule-list li { position: relative; padding-left: 16px; }
+.rule-list li::before { content: ''; position: absolute; left: 0; top: 0.68em; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+.spec-card ol.rule-list { list-style: decimal; padding-left: 1.35rem; }
+.spec-card ol.rule-list li { display: list-item; padding-left: 4px; }
+.spec-card ol.rule-list li::before { display: none; }
+.table-wrap {
+  width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--surface);
+}
+.spec-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 0.76rem; }
+.spec-table th {
+  padding: 12px 14px; text-align: left; color: var(--gold); background: var(--bg-1);
+  font-family: 'Bebas Neue', sans-serif; font-size: 0.62rem; letter-spacing: 1.6px;
+  border-bottom: 1px solid var(--line-strong); white-space: nowrap;
+}
+.spec-table td { padding: 12px 14px; color: var(--ink-2); vertical-align: top; border-bottom: 1px solid var(--line); line-height: 1.55; }
+.spec-table tr:last-child td { border-bottom: 0; }
+.spec-table td strong { color: var(--ink); font-weight: 600; }
+.spec-table .num { font-family: 'JetBrains Mono', monospace; color: var(--ink); white-space: nowrap; }
+.status-pill {
+  display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 50px;
+  background: rgba(212,162,74,0.1); border: 1px solid rgba(212,162,74,0.24);
+  color: var(--gold); font: 0.58rem 'Bebas Neue', sans-serif; letter-spacing: 1.2px; white-space: nowrap;
+}
+.status-pill.neutral { color: var(--ink-2); border-color: var(--line-strong); background: var(--bg-1); }
+.status-pill.success { color: #9cc5a7; border-color: rgba(122,168,136,0.35); background: rgba(122,168,136,0.1); }
+.status-pill.danger { color: #e9a47c; border-color: rgba(215,134,85,0.35); background: rgba(215,134,85,0.1); }
+.formula {
+  margin-top: 12px; padding: 14px 16px; background: var(--bg-0); border: 1px solid var(--line);
+  border-radius: 9px; color: var(--ink); font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem; line-height: 1.7; overflow-x: auto; white-space: pre-wrap;
+}
+.subsection { margin-top: 22px; }
+.subsection-title { color: var(--ink); }
+.body-copy { color: var(--ink-2); font-size: 0.82rem; line-height: 1.7; max-width: 850px; }
+.section-divider { max-width: 1020px; margin: 24px auto; height: 1px; background: var(--line); }
+
+/* Shared SVG diagram styling */
+.flow-canvas.dense svg { min-width: 820px; }
+.flow-svg .node-primary { fill: #d4a24a; stroke: #d4a24a; }
+.flow-svg .node-standard { fill: #1c2338; stroke: rgba(240,234,214,0.16); }
+.flow-svg .node-condition { fill: #0a0d16; stroke: #6c6f7e; stroke-dasharray: 4 3; }
+.flow-svg .node-safe { fill: rgba(122,168,136,0.12); stroke: #7aa888; }
+.flow-svg .edge-primary { fill: none; stroke: #d4a24a; stroke-width: 1.5; }
+.flow-svg .edge-neutral { fill: none; stroke: #6c6f7e; stroke-width: 1.4; stroke-dasharray: 3 3; }
+.flow-svg .node-meta { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 2px; fill: #d4a24a; }
+.flow-svg .node-meta-dark { font-family: 'Bebas Neue', sans-serif; font-size: 10px; letter-spacing: 2px; fill: #1a1305; }
+.flow-svg .node-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; fill: #f0ead6; }
+.flow-svg .node-title-dark { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; fill: #1a1305; }
+.flow-svg .edge-note { font-family: 'Inter', sans-serif; font-size: 9px; font-style: italic; fill: #a8a495; }
+.flow-svg .edge-note-dark { font-family: 'Inter', sans-serif; font-size: 9px; font-style: italic; fill: #1a1305; }
+
+.footer { max-width: 1100px; margin: 60px auto 0; padding: 40px; border-top: 1px solid var(--line); text-align: center; color: var(--ink-3); font-size: 0.8rem; }
+.footer strong { color: var(--gold); }
+.footer a { color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  .topnav { align-items: flex-start; gap: 14px; flex-direction: column; padding: 14px 20px; }
+  .topnav-links { width: 100%; overflow-x: auto; padding-bottom: 4px; }
+  .page-head { padding: 44px 20px 28px; }
+  .section { padding: 26px 20px; }
+  .chapter-nav { padding: 0 20px 16px; overflow-x: auto; flex-wrap: nowrap; }
+  .chapter-nav a { flex: 0 0 auto; }
+  .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .three-col { grid-template-columns: 1fr; }
+  .flow-canvas { padding: 20px; }
+  .flow-canvas svg { min-width: 760px; }
+}
+@media (max-width: 620px) {
+  .summary-grid, .spec-grid, .two-col { grid-template-columns: 1fr; }
+  .page-title { font-size: 2.1rem; }
+  .section-title { font-size: 1.15rem; }
+  .flow-canvas { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">Skip to requirements</a>
+
+<nav class="topnav" aria-label="Primary navigation">
+  <a class="brand" href="../index.html">
+    <span class="brand-dot"></span>ARES
+    <span class="brand-sub">PLAYER HANDOFF</span>
+  </a>
+  <div class="topnav-links">
+    <a href="../index.html">HOME</a>
+    <a href="flows.html" class="active" aria-current="page">PLAYER FLOWS</a>
+    <a href="../admin-flows.html">ADMIN FLOWS</a>
+  </div>
+</nav>
+
+<main id="main-content">
+
+<div class="page-head">
+  <div class="page-eyebrow"><span class="page-eyebrow-dot"></span>05 · PRODUCT FLOWS &amp; REQUIREMENTS</div>
+  <h1 class="page-title">ARES MVP source of truth</h1>
+  <p class="page-lead">End-to-end participant, reward, privacy, and data flows for the ARES MVP. Admin actions appear only where they are prerequisites for the player journey; the full admin journey belongs in its own handoff file.</p>
+</div>
+
+<nav class="chapter-nav" aria-label="Page chapters">
+  <a href="#overview">OVERVIEW</a>
+  <a href="#journeys">CORE FLOWS</a>
+  <a href="#screens">SCREENS</a>
+  <a href="#gamification">XP &amp; RANKS</a>
+  <a href="#catalogs">CATALOGS</a>
+  <a href="#data">DATA &amp; PRIVACY</a>
+  <a href="#launch">LAUNCH</a>
+</nav>
+
+<!-- PRODUCT OVERVIEW -->
+<section class="section" id="overview">
+  <div class="section-head">
+    <div class="section-kicker">PRODUCT BASELINE</div>
+    <h2 class="section-title">What ARES is building</h2>
+    <p class="section-desc">A positive, non-judgmental growth system for young participants. This page defines the mobile player journey.</p>
+  </div>
+
+  <div class="summary-grid">
+    <div class="spec-card gold"><span class="card-label">LAUNCH AGE</span><div class="metric-value">13–17</div><div class="metric-label">Guardian/lawful-basis rules validated per country</div></div>
+    <div class="spec-card"><span class="card-label">MOBILE ROLE</span><div class="metric-value">Youth</div><div class="metric-label">Parent and mentor accounts stay post-MVP</div></div>
+    <div class="spec-card"><span class="card-label">ORGANIZATIONS</span><div class="metric-value">1</div><div class="metric-label">Tenant-isolated architecture, no tenant switcher</div></div>
+    <div class="spec-card"><span class="card-label">LANGUAGES</span><div class="metric-value">EN · NL</div><div class="metric-label">Both required before content can publish</div></div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Launch decisions</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Decision</th><th>MVP rule</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Enrollment</strong></td><td>The participant starts inside the app and enters an active cohort code created by an admin in the dashboard; admins do not send enrollment messages.</td><td>A valid code binds the new account to one approved organization, cohort, Youth role, and enrollment policy without exposing cohort discovery.</td></tr>
+          <tr><td><strong>Authentication</strong></td><td>After cohort-code validation, the participant creates an email/password account and verifies the email.</td><td>Returning users sign in normally; social login and SSO are not MVP features.</td></tr>
+          <tr><td><strong>Authorization</strong></td><td>Role and cohort come from server claims and the validated cohort-code record.</td><td>The mobile client can never select Parent, Mentor, Admin, another privileged role, or a different cohort.</td></tr>
+          <tr><td><strong>Cohorts</strong></td><td>One active cohort per participant; history is effective-dated.</td><td>Reassignment never rewrites historic XP, analytics, or leaderboard attribution.</td></tr>
+          <tr><td><strong>Program time</strong></td><td>One fixed IANA timezone per cohort; program day runs 02:00–01:59.</td><td>Device clock and travel cannot create duplicate reward days.</td></tr>
+          <tr><td><strong>Versioned program content</strong></td><td>The catalog, exact habit/challenge XP, target/full-set bonuses, badges, and rank labels/thresholds shown in this page are launch defaults. Authorized admins publish immutable future-effective successor versions.</td><td>The server snapshots the applicable versions before play; mobile renders server values, and later edits never alter an open day or historic award.</td></tr>
+          <tr><td><strong>Daily limit</strong></td><td>Admin sets the limit. ARES receives only <code>within_limit</code>, <code>exceeded</code>, or <code>unavailable</code>.</td><td>No observed time, remaining time, app names, domains, or categories are shown or stored.</td></tr>
+          <tr><td><strong>Competition</strong></td><td>Optional cohort-only leaderboard with safe aliases and opt-out.</td><td>No global youth ranking, bottom ranking, or public profile directory.</td></tr>
+          <tr><td><strong>Offline</strong></td><td>No offline completions or reward claims.</td><td>Cached information may be labelled “Last synced,” but writes require server confirmation.</td></tr>
+          <tr><td><strong>Post-MVP</strong></td><td>Parent/mentor portals, proof upload, approvals, chat, email reminders, AI, SSO, certificates, physical rewards, CRM, and multi-organization UI.</td><td>These require additional privacy, moderation, or platform work.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="two-col subsection">
+    <article class="spec-card">
+      <span class="card-label">MOBILE APPLICATION</span>
+      <h3>Daily growth loop</h3>
+      <p>Home, morning and evening check-ins, assigned observable habits from a versioned catalog, safe challenges, binary daily-limit status, XP, levels, ranks, streaks, badges, cohort leaderboard, Inbox, and a private growth profile.</p>
+    </article>
+    <article class="spec-card">
+      <span class="card-label">PLAYER-JOURNEY PREREQUISITES</span>
+      <h3>Admin setup referenced here</h3>
+      <p>Before players start, an admin creates the cohort and cohort code, publishes the applicable habit/challenge, XP, bonus, badge, and rank versions, publishes EN/NL content, and sets the Daily Limit policy. Detailed dashboard flows and permissions are specified separately.</p>
+    </article>
+  </div>
+
+  <div class="flow-notes">
+    <h3>Admin steps required before the first player can start</h3>
+    <ol class="flow-steps">
+      <li><span class="step-num">01</span><span>Create and activate the cohort with its program dates, timezone, capacity, and EN/NL availability.</span></li>
+      <li><span class="step-num">02</span><span>Set one active 6–12 character cohort code. The code uses unambiguous letters/numbers and may have an expiry or enrollment cap.</span></li>
+      <li><span class="step-num">03</span><span>Review or edit the launch-default catalog, exact habit/challenge XP, daily-target and full-set bonuses, rank thresholds, and badge definitions; publish the approved future-effective versions, assignments, and challenge occurrences.</span></li>
+      <li><span class="step-num">04</span><span>Set the cohort Daily Limit threshold and effective date.</span></li>
+      <li><span class="step-num">05</span><span>Publish the required onboarding, motivational, badge, and notification copy in English and Dutch.</span></li>
+    </ol>
+  </div>
+
+  <div class="callout warning"><strong>Scope correction:</strong> “Fully GDPR-compliant” and “fully EU-hosted” are release outcomes that require DPO/legal and architecture review, not properties the UI or technology stack can claim automatically.</div>
+</section>
+
+<div class="section-divider"></div>
+
+<section class="section" id="journeys">
+  <div class="section-head">
+    <div class="section-kicker">NAVIGATION MAP</div>
+    <h2 class="section-title">How the product connects</h2>
+    <p class="section-desc">The original handoff flows are preserved below and expanded with the missing business rules, exceptions, and backend outcomes.</p>
+  </div>
+</section>
+
+<!-- PROGRAM DAY TIMELINE -->
+<section class="section" id="program-day-flow">
+  <div class="section-head">
+    <div class="section-kicker">CORE TIME MODEL</div>
+    <h2 class="section-title">Program-day finalization</h2>
+    <p class="section-desc">One cohort timezone and one 02:00 boundary control eligibility, streaks, challenge deadlines, and period reporting.</p>
+  </div>
+  <div class="flow-canvas dense">
+    <svg class="flow-svg" viewBox="0 0 1000 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="day-title day-desc">
+      <title id="day-title">ARES program-day timeline</title>
+      <desc id="day-desc">The day opens at 02:00, contains morning and evening check-in windows, and finalizes at the following 02:00.</desc>
+      <defs>
+        <marker id="day-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+      </defs>
+
+      <line class="edge-primary" x1="145" y1="112" x2="205" y2="112" marker-end="url(#day-arrow)"/>
+      <line class="edge-primary" x1="315" y1="112" x2="375" y2="112" marker-end="url(#day-arrow)"/>
+      <line class="edge-primary" x1="485" y1="112" x2="545" y2="112" marker-end="url(#day-arrow)"/>
+      <line class="edge-primary" x1="655" y1="112" x2="715" y2="112" marker-end="url(#day-arrow)"/>
+      <line class="edge-primary" x1="825" y1="112" x2="885" y2="112" marker-end="url(#day-arrow)"/>
+
+      <rect class="node-primary" x="25" y="77" width="120" height="70" rx="10"/>
+      <text class="node-meta-dark" x="85" y="101" text-anchor="middle">02:00</text>
+      <text class="node-title-dark" x="85" y="127" text-anchor="middle">DAY OPENS</text>
+
+      <rect class="node-standard" x="205" y="77" width="110" height="70" rx="10"/>
+      <text class="node-meta" x="260" y="101" text-anchor="middle">04:00–14:00</text>
+      <text class="node-title" x="260" y="127" text-anchor="middle">MORNING</text>
+
+      <rect class="node-standard" x="375" y="77" width="110" height="70" rx="10"/>
+      <text class="node-meta" x="430" y="101" text-anchor="middle">DURING DAY</text>
+      <text class="node-title" x="430" y="127" text-anchor="middle">ACTIVITIES</text>
+
+      <rect class="node-standard" x="545" y="77" width="110" height="70" rx="10"/>
+      <text class="node-meta" x="600" y="101" text-anchor="middle">18:00–01:59</text>
+      <text class="node-title" x="600" y="127" text-anchor="middle">EVENING</text>
+
+      <rect class="node-condition" x="715" y="77" width="110" height="70" rx="10"/>
+      <text class="node-meta" x="770" y="101" text-anchor="middle">NEXT 02:00</text>
+      <text class="node-title" x="770" y="127" text-anchor="middle">FINALIZE</text>
+
+      <rect class="node-safe" x="885" y="77" width="90" height="70" rx="10"/>
+      <text class="node-meta" x="930" y="101" text-anchor="middle">OUTPUT</text>
+      <text class="node-title" x="930" y="127" text-anchor="middle">REFRESH</text>
+
+      <text class="edge-note" x="500" y="190" text-anchor="middle">00:00–01:59 still belongs to the preceding ARES program date</text>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot node-primary"></div>Program boundary</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Participant window</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(122,168,136,0.12);border:1px solid #7aa888"></div>Final projection</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Canonical time rules</h3>
+    <ul class="rule-list">
+      <li>Program dates, not device calendar dates, drive reward slots and streaks. The server assigns the effective date.</li>
+      <li>The week is Monday–Sunday by program date. Day, week, and month leaderboards use that same date.</li>
+      <li>DST is resolved through the cohort’s IANA timezone. A timezone change is scheduled, migrated, and audited.</li>
+      <li><strong>Day N</strong> equals 1 plus the number of program dates since the cohort start date; it is not the number of app opens.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SERVER-AUTHORITATIVE XP FLOW -->
+<section class="section" id="ledger-flow">
+  <div class="section-head">
+    <div class="section-kicker">REWARD INTEGRITY</div>
+    <h2 class="section-title">Action to authoritative XP</h2>
+    <p class="section-desc">The client requests an action. Only the backend validates and writes XP, levels, streaks, badges, and leaderboard projections.</p>
+  </div>
+  <div class="flow-canvas dense">
+    <svg class="flow-svg" viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ledger-title ledger-desc">
+      <title id="ledger-title">Server-authoritative XP settlement</title>
+      <desc id="ledger-desc">A user action receives an idempotency key, is validated by the backend, writes a domain record and ledger event, updates projections, and returns confirmation.</desc>
+      <defs>
+        <marker id="ledger-gold" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+        <marker id="ledger-neutral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+      </defs>
+
+      <rect class="node-primary" x="35" y="105" width="145" height="70" rx="10"/>
+      <text class="node-meta-dark" x="107" y="129" text-anchor="middle">PARTICIPANT</text>
+      <text class="node-title-dark" x="107" y="154" text-anchor="middle">ACTION</text>
+
+      <line class="edge-primary" x1="180" y1="140" x2="245" y2="140" marker-end="url(#ledger-gold)"/>
+      <rect class="node-standard" x="255" y="105" width="145" height="70" rx="10"/>
+      <text class="node-meta" x="327" y="129" text-anchor="middle">CLIENT COMMAND</text>
+      <text class="node-title" x="327" y="154" text-anchor="middle">IDEMPOTENCY KEY</text>
+
+      <line class="edge-primary" x1="400" y1="140" x2="465" y2="140" marker-end="url(#ledger-gold)"/>
+      <rect class="node-condition" x="475" y="95" width="170" height="90" rx="10"/>
+      <text class="node-meta" x="560" y="121" text-anchor="middle">CLOUD FUNCTION</text>
+      <text class="node-title" x="560" y="146" text-anchor="middle">VALIDATE</text>
+      <text class="edge-note" x="560" y="168" text-anchor="middle">assignment · window · version · role</text>
+
+      <line class="edge-primary" x1="645" y1="140" x2="710" y2="140" marker-end="url(#ledger-gold)"/>
+      <rect class="node-standard" x="720" y="95" width="150" height="90" rx="10"/>
+      <text class="node-meta" x="795" y="121" text-anchor="middle">TRANSACTION</text>
+      <text class="node-title" x="795" y="146" text-anchor="middle">RECORD + LEDGER</text>
+      <text class="edge-note" x="795" y="168" text-anchor="middle">one atomic write</text>
+
+      <line class="edge-primary" x1="870" y1="140" x2="925" y2="140" marker-end="url(#ledger-gold)"/>
+      <rect class="node-safe" x="925" y="105" width="55" height="70" rx="10"/>
+      <text class="node-meta" x="952" y="128" text-anchor="middle">OK</text>
+      <text class="node-title" x="952" y="153" text-anchor="middle">SYNC</text>
+
+      <path class="edge-neutral" d="M 560 185 L 560 250 L 327 250 L 327 180" marker-end="url(#ledger-neutral)"/>
+      <text class="edge-note" x="445" y="242" text-anchor="middle">retry / duplicate → return prior result</text>
+
+      <path class="edge-neutral" d="M 327 175 L 327 300 L 465 300" marker-end="url(#ledger-neutral)"/>
+      <rect class="node-condition" x="475" y="268" width="150" height="64" rx="10"/>
+      <text class="node-meta" x="550" y="291" text-anchor="middle">SERVER REVALIDATES</text>
+      <text class="node-title" x="550" y="316" text-anchor="middle">UNDO / CORRECTION</text>
+      <line class="edge-neutral" x1="625" y1="300" x2="710" y2="300" marker-end="url(#ledger-neutral)"/>
+      <rect class="node-standard" x="720" y="268" width="150" height="64" rx="10"/>
+      <text class="node-meta" x="795" y="291" text-anchor="middle">APPEND ONLY</text>
+      <text class="node-title" x="795" y="316" text-anchor="middle">NEGATIVE LEDGER EVENT</text>
+
+      <rect class="node-safe" x="720" y="15" width="250" height="55" rx="10"/>
+      <text class="node-meta" x="845" y="37" text-anchor="middle">REBUILDABLE PROJECTIONS</text>
+      <text class="node-title" x="845" y="58" text-anchor="middle">XP · LEVEL · STREAK · BADGE · LB</text>
+      <line class="edge-primary" x1="795" y1="95" x2="795" y2="75" marker-end="url(#ledger-gold)"/>
+      <path class="edge-primary" d="M 870 300 L 900 300 L 900 75" marker-end="url(#ledger-gold)"/>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot node-primary"></div>User intent</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Authoritative write</div>
+      <div class="legend-item"><div class="legend-line"></div>Retry / reversal</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Concurrency and failure behavior</h3>
+    <div class="two-col">
+      <ul class="rule-list">
+        <li>Double taps and network retries reuse the same key and return the original result.</li>
+        <li>Concurrent devices compete for one unique completion record; only one award slot can be active.</li>
+        <li>Habit write failure rolls back optimistic state. Check-in failure preserves the draft.</li>
+      </ul>
+      <ul class="rule-list">
+        <li>The device clock and client-provided XP amount are ignored.</li>
+        <li>Corrections append reversal/adjustment events; history is not silently overwritten.</li>
+        <li>Revoked access closes the session and clears cached participant/cohort data.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- DAILY LIMIT BINARY FLOW -->
+<section class="section" id="daily-limit-flow">
+  <div class="section-head">
+    <div class="section-kicker">PRIVACY-SAFE NATIVE SIGNAL</div>
+    <h2 class="section-title">Daily Limit: compliance outcome plus availability</h2>
+    <p class="section-desc">The compliance outcome is binary—within or exceeded. A separate unavailable state covers missing technical evidence; observed usage detail never leaves native monitoring.</p>
+  </div>
+  <div class="flow-canvas dense">
+    <svg class="flow-svg" viewBox="0 0 1000 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="limit-title limit-desc">
+      <title id="limit-title">Binary Daily Limit status flow</title>
+      <desc id="limit-desc">An admin policy is sent to native monitoring, the day finalizes, and the backend receives within limit, exceeded, or unavailable.</desc>
+      <defs>
+        <marker id="limit-gold" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+        <marker id="limit-neutral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+      </defs>
+
+      <rect class="node-standard" x="35" y="80" width="170" height="75" rx="10"/>
+      <text class="node-meta" x="120" y="105" text-anchor="middle">PROGRAM ADMIN</text>
+      <text class="node-title" x="120" y="132" text-anchor="middle">PUBLISH LIMIT POLICY</text>
+
+      <line class="edge-primary" x1="205" y1="118" x2="285" y2="118" marker-end="url(#limit-gold)"/>
+      <rect class="node-primary" x="295" y="80" width="170" height="75" rx="10"/>
+      <text class="node-meta-dark" x="380" y="105" text-anchor="middle">ON DEVICE</text>
+      <text class="node-title-dark" x="380" y="132" text-anchor="middle">NATIVE MONITORING</text>
+
+      <line class="edge-primary" x1="465" y1="118" x2="545" y2="118" marker-end="url(#limit-gold)"/>
+      <rect class="node-condition" x="555" y="80" width="170" height="75" rx="10"/>
+      <text class="node-meta" x="640" y="105" text-anchor="middle">02:00</text>
+      <text class="node-title" x="640" y="132" text-anchor="middle">FINALIZE STATUS</text>
+
+      <path class="edge-primary" d="M 725 105 Q 810 65 875 70" marker-end="url(#limit-gold)"/>
+      <path class="edge-neutral" d="M 725 118 L 870 118" marker-end="url(#limit-neutral)"/>
+      <path class="edge-neutral" d="M 725 132 Q 810 175 875 170" marker-end="url(#limit-neutral)"/>
+
+      <rect class="node-safe" x="875" y="40" width="100" height="60" rx="10"/>
+      <text class="node-meta" x="925" y="63" text-anchor="middle">RESULT</text>
+      <text class="node-title" x="925" y="85" text-anchor="middle">WITHIN LIMIT</text>
+
+      <rect x="875" y="110" width="100" height="60" rx="10" fill="rgba(215,134,85,0.1)" stroke="#d78655"/>
+      <text class="node-meta" x="925" y="133" text-anchor="middle">RESULT</text>
+      <text class="node-title" x="925" y="155" text-anchor="middle">EXCEEDED</text>
+
+      <rect class="node-condition" x="875" y="180" width="100" height="60" rx="10"/>
+      <text class="node-meta" x="925" y="203" text-anchor="middle">RESULT</text>
+      <text class="node-title" x="925" y="225" text-anchor="middle">UNAVAILABLE</text>
+
+      <path class="edge-primary" d="M 875 70 L 775 70 L 775 280 L 740 280" marker-end="url(#limit-gold)"/>
+      <rect class="node-primary" x="555" y="245" width="185" height="70" rx="10"/>
+      <text class="node-meta-dark" x="647" y="269" text-anchor="middle">ONE AWARD SLOT</text>
+      <text class="node-title-dark" x="647" y="295" text-anchor="middle">MVP V1 · +130 XP</text>
+
+      <path class="edge-neutral" d="M 875 140 L 825 140 L 825 345"/>
+      <path class="edge-neutral" d="M 875 210 L 845 210 L 845 345 L 825 345"/>
+      <path class="edge-neutral" d="M 825 345 L 385 345 L 385 315" marker-end="url(#limit-neutral)"/>
+      <text class="edge-note" x="735" y="337" text-anchor="middle">0 XP · BYPASS REWARD</text>
+
+      <line class="edge-primary" x1="555" y1="280" x2="475" y2="280" marker-end="url(#limit-gold)"/>
+      <rect class="node-standard" x="295" y="245" width="180" height="70" rx="10"/>
+      <text class="node-meta" x="385" y="269" text-anchor="middle">PROJECTION</text>
+      <text class="node-title" x="385" y="295" text-anchor="middle">HOME · PROGRESS · INBOX</text>
+
+      <rect class="node-condition" x="35" y="245" width="170" height="70" rx="10"/>
+      <text class="node-meta" x="120" y="269" text-anchor="middle">PRIVACY BOUNDARY</text>
+      <text class="node-title" x="120" y="295" text-anchor="middle">FINAL STATUS ONLY</text>
+      <line class="edge-neutral" x1="205" y1="280" x2="285" y2="280" marker-end="url(#limit-neutral)"/>
+
+      <text class="edge-note" x="500" y="386" text-anchor="middle">Threshold configuration is policy data. Observed device usage never leaves native monitoring.</text>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot node-primary"></div>Native / reward path</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(122,168,136,0.12);border:1px solid #7aa888"></div>Verified success</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(215,134,85,0.1);border:1px solid #d78655"></div>Exceeded</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Projection only</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Required participant states and copy</h3>
+    <div class="three-col">
+      <article class="spec-card"><span class="status-pill neutral">PENDING</span><p style="margin-top:10px">“Your daily limit result will be ready after the day closes.”</p></article>
+      <article class="spec-card"><span class="status-pill success">WITHIN LIMIT</span><p style="margin-top:10px">“Within your daily limit. +130 XP added.”</p></article>
+      <article class="spec-card"><span class="status-pill danger">EXCEEDED</span><p style="margin-top:10px">“Today’s limit was exceeded. Tomorrow is a fresh start.”</p></article>
+    </div>
+    <div class="callout privacy"><strong>Unavailable:</strong> “We couldn’t verify today’s limit. No XP was added.” Permission copy must state that ARES never receives usage time, app names, domains, installed apps, content, or categories.</div>
+    <div class="two-col subsection">
+      <article class="spec-card">
+        <span class="card-label">POLICY V1</span><h3>Admin-set, cohort-wide</h3>
+        <ul class="rule-list">
+          <li>Duration unit is minutes; allowed range 30–300 in 15-minute increments.</li>
+          <li>The editor prefills 60 minutes, but an authorized admin must explicitly publish the effective-dated cohort policy.</li>
+          <li>No per-user override. The active value is locked at program-day open and changes take effect at a future 02:00 boundary.</li>
+          <li>ARES youth UI displays only pending/final status. The native OS limit experience provides any real-time limit alert.</li>
+        </ul>
+      </article>
+      <article class="spec-card">
+        <span class="card-label">FINALIZATION V1</span><h3>Conclusive or unavailable</h3>
+        <ul class="rule-list">
+          <li>One verified primary device is bound to a participant for each program day; changes start at the next 02:00 boundary.</li>
+          <li>A conclusive callback requires valid permission/entitlement and continuous native coverage for the policy window.</li>
+          <li>Identical retries return the prior result. Conflicting callbacks, a coverage gap, or missing callback by 04:00 become <code>unavailable</code>.</li>
+          <li>A signed late native callback may correct the same program date for seven days; it appends award/reversal events and never moves XP to the callback date.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="callout"><strong>Permission disclosure:</strong> monitoring is optional. Before the OS prompt, explain that enabling it can earn non-leaderboard lifetime XP and private badges; declining keeps every core feature available. An unavailable day freezes the within-limit streak—it does not increment or reset it. Admins cannot manually choose a result or mint the reward.</div>
+  </div>
+</section>
+
+<!-- DELETION FLOW -->
+<section class="section" id="deletion-flow">
+  <div class="section-head">
+    <div class="section-kicker">RIGHTS &amp; ERASURE</div>
+    <h2 class="section-title">Controlled deletion journey</h2>
+    <p class="section-desc">Deletion is a resumable compliance workflow, not the same action as ordinary account deactivation.</p>
+  </div>
+  <div class="flow-canvas dense">
+    <svg class="flow-svg" viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="delete-title delete-desc">
+      <title id="delete-title">Participant deletion flow</title>
+      <desc id="delete-desc">A deletion request locks the account, verifies authority, receives a decision, deletes or anonymizes data, rebuilds aggregates, and records completion.</desc>
+      <defs>
+        <marker id="delete-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+        <marker id="delete-neutral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+      </defs>
+      <rect class="node-condition" x="20" y="80" width="120" height="65" rx="10"/><text class="node-meta" x="80" y="103" text-anchor="middle">STEP 1</text><text class="node-title" x="80" y="128" text-anchor="middle">REQUEST</text>
+      <line class="edge-primary" x1="140" y1="112" x2="175" y2="112" marker-end="url(#delete-arrow)"/>
+      <rect class="node-standard" x="185" y="80" width="130" height="65" rx="10"/><text class="node-meta" x="250" y="103" text-anchor="middle">IMMEDIATE</text><text class="node-title" x="250" y="128" text-anchor="middle">LOCK &amp; HIDE</text>
+      <line class="edge-primary" x1="315" y1="112" x2="350" y2="112" marker-end="url(#delete-arrow)"/>
+      <rect class="node-standard" x="360" y="80" width="130" height="65" rx="10"/><text class="node-meta" x="425" y="103" text-anchor="middle">STEP 3</text><text class="node-title" x="425" y="128" text-anchor="middle">VERIFY</text>
+      <line class="edge-primary" x1="490" y1="112" x2="525" y2="112" marker-end="url(#delete-arrow)"/>
+      <rect class="node-condition" x="535" y="70" width="140" height="85" rx="10"/><text class="node-meta" x="605" y="96" text-anchor="middle">DECISION</text><text class="node-title" x="605" y="121" text-anchor="middle">APPROVE?</text><text class="edge-note" x="605" y="141" text-anchor="middle">verify authority + lawful hold</text>
+      <line class="edge-primary" x1="675" y1="112" x2="710" y2="112" marker-end="url(#delete-arrow)"/>
+      <text class="edge-note" x="693" y="102" text-anchor="middle">approve</text>
+      <rect class="node-primary" x="720" y="70" width="140" height="85" rx="10"/><text class="node-meta-dark" x="790" y="96" text-anchor="middle">APPROVED</text><text class="node-title-dark" x="790" y="121" text-anchor="middle">DELETE / ANONYMIZE</text><text class="edge-note-dark" x="790" y="141" text-anchor="middle">idempotent cascade</text>
+      <line class="edge-primary" x1="860" y1="112" x2="895" y2="112" marker-end="url(#delete-arrow)"/>
+      <rect class="node-safe" x="905" y="80" width="75" height="65" rx="10"/><text class="node-meta" x="942" y="103" text-anchor="middle">DONE</text><text class="node-title" x="942" y="128" text-anchor="middle">AUDIT</text>
+      <path class="edge-neutral" d="M 605 155 L 605 178" marker-end="url(#delete-neutral)"/>
+      <rect class="node-condition" x="520" y="190" width="170" height="48" rx="9"/><text class="node-meta" x="605" y="209" text-anchor="middle">NO DELETION</text><text class="node-title" x="605" y="228" text-anchor="middle">HOLD · REJECT · CANCEL</text>
+    </svg>
+  </div>
+  <div class="flow-notes">
+    <h3>Deletion effects</h3>
+    <p>The account immediately stops login, assignments, notification targeting, and leaderboard presence. Only an approved request enters the idempotent delete/anonymize cascade and aggregate rebuild. A lawful hold remains locked and deletion-pending; a verified rejection or participant cancellation may restore the prior lifecycle state and is audited. Approved execution removes or irreversibly anonymizes Auth, profile, consent links, memberships, check-ins, completions, XP, badges, notifications, device registrations, Daily Limit results, and media. Partial failure remains retryable and cannot reactivate the account. Normal completion target: within 30 days, subject to a documented lawful exception.</p>
+  </div>
+</section>
+
+<!-- FIRST-TIME FLOW -->
+<section class="section" id="onboarding-flow">
+  <div class="section-head">
+    <h2 class="section-title">First-time onboarding</h2>
+    <div class="section-desc">Fresh install to first home screen. About 3 minutes total, minus setup wait.</div>
+  </div>
+  <div class="flow-canvas">
+    <svg viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="onboarding-title onboarding-desc">
+      <title id="onboarding-title">First-time participant onboarding</title>
+      <desc id="onboarding-desc">A participant enters an admin-created cohort code, which is validated before credentials, profile, assent, tutorial, permissions, and Home.</desc>
+      <defs>
+        <marker id="arrow-gold" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+        <marker id="arrow-neutral" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+      </defs>
+
+      <rect x="15" y="65" width="105" height="70" rx="10" fill="#0a0d16" stroke="#d4a24a" stroke-width="1.5"/>
+      <text x="67" y="89" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">SCREEN 08</text>
+      <text x="67" y="115" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">ENTER CODE</text>
+      <line x1="120" y1="100" x2="140" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="150" y="55" width="105" height="90" rx="10" fill="#1c2338" stroke="#6c6f7e" stroke-dasharray="4 3"/>
+      <text x="202" y="80" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">SERVER</text>
+      <text x="202" y="105" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">VALIDATE</text>
+      <text x="202" y="126" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8a495">role · cohort · policy</text>
+      <line x1="255" y1="100" x2="275" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="285" y="65" width="105" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="337" y="89" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">IDENTITY</text>
+      <text x="337" y="115" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">EMAIL + PASS</text>
+      <line x1="390" y1="100" x2="410" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="420" y="55" width="105" height="90" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="472" y="80" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">PROFILE</text>
+      <text x="472" y="105" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">EN/NL · ALIAS</text>
+      <text x="472" y="126" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8a495">cohort server-bound</text>
+      <line x1="525" y1="100" x2="545" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="555" y="55" width="105" height="90" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="607" y="80" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">NOTICE</text>
+      <text x="607" y="105" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">ASSENT</text>
+      <text x="607" y="126" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8a495">policy evidence</text>
+      <line x1="660" y1="100" x2="680" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="690" y="65" width="105" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="742" y="89" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">LEARN</text>
+      <text x="742" y="115" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">XP TUTORIAL</text>
+      <line x1="795" y1="100" x2="815" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="825" y="55" width="105" height="90" rx="10" fill="#1c2338" stroke="#6c6f7e" stroke-dasharray="4 3"/>
+      <text x="877" y="80" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#d4a24a">OPTIONAL</text>
+      <text x="877" y="105" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="12" fill="#f0ead6">PERMISSIONS</text>
+      <text x="877" y="126" text-anchor="middle" font-family="Inter" font-size="8" fill="#a8a495">push · daily limit</text>
+      <line x1="930" y1="100" x2="950" y2="100" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold)"/>
+
+      <rect x="958" y="65" width="35" height="70" rx="10" fill="#d4a24a" stroke="#d4a24a"/>
+      <text x="975" y="94" text-anchor="middle" font-family="Bebas Neue" font-size="8" fill="#1a1305">01</text>
+      <text x="975" y="116" text-anchor="middle" font-family="Bebas Neue" font-size="8" fill="#1a1305">HOME</text>
+
+      <path d="M 202 145 L 202 195 L 325 195" stroke="#6c6f7e" fill="none" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#arrow-neutral)"/>
+      <rect x="335" y="170" width="330" height="55" rx="10" fill="#0a0d16" stroke="#6c6f7e" stroke-dasharray="4 3"/>
+      <text x="500" y="191" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">INVALID · EXPIRED · DISABLED · FULL · RATE-LIMITED · SAVE FAILURE</text>
+      <text x="500" y="212" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="11" fill="#f0ead6">SAFE ERROR · RECOVER OR CONTACT ORGANIZATION</text>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot node-entry"></div>Entry point</div>
+      <div class="legend-item"><div class="legend-dot node-primary"></div>Designed screen</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Not in v1 mockup (build required)</div>
+      <div class="legend-item"><div class="legend-line deep"></div>Primary path</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Implementation sequence</h3>
+    <ol class="flow-steps">
+      <li><span class="step-num">01</span><span>Show a labelled cohort-code text field. Normalize and validate the admin-managed code on the server, then bind its organization, cohort, Youth role, age band, locale options, capacity, and enrollment policy.</span></li>
+      <li><span class="step-num">02</span><span>Verify email, create the password, and resolve authorization from the server. Parent, Mentor, and Admin roles are never client-selectable.</span></li>
+      <li><span class="step-num">03</span><span>Collect English/Dutch preference, a safe cohort alias, participant assent, and the current privacy/terms versions.</span></li>
+      <li><span class="step-num">04</span><span>Explain habits, check-ins, XP, and privacy before requesting optional notification and daily-limit monitoring permissions.</span></li>
+      <li><span class="step-num">05</span><span>Persist onboarding completion before navigation. Returning users with a complete profile open Home directly.</span></li>
+    </ol>
+    <div class="callout"><strong>Exception states:</strong> invalid, expired, disabled, capacity-reached, or rate-limited cohort code; duplicate account; missing lawful-enrollment status; unsupported age; failed profile save; denied optional permission; and access revoked after onboarding. Use a neutral code error that does not reveal whether an organization or cohort exists.</div>
+    <div class="callout"><strong>Cohort-code behavior:</strong> label the field “Cohort code” with helper text “Enter the code provided by your program.” Support typing and paste, automatic uppercase display, loading, success, generic failure, and cooldown states. The code is reusable for eligible new members until its admin-set expiry, capacity, disablement, or rotation. It is case-insensitive, trimmed, and validated server-side; it is never treated as authentication after registration. Five failed attempts in 15 minutes trigger a progressive cooldown. An existing user cannot self-transfer with another code—cohort reassignment remains an audited admin action.</div>
+  </div>
+</section>
+
+<!-- DAILY USE LOOP -->
+<section class="section" id="daily-loop">
+  <div class="section-head">
+    <h2 class="section-title">Daily use loop</h2>
+    <div class="section-desc">What a returning user does every day. Home is the hub. All other screens return here.</div>
+  </div>
+  <div class="flow-canvas">
+    <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="daily-title daily-desc">
+      <title id="daily-title">Daily participant navigation loop</title>
+      <desc id="daily-desc">Home connects to Inbox, Check-in, Challenges, Habits, Daily Limit, Progress, Leaderboard, and Profile.</desc>
+      <defs>
+        <marker id="arrow-gold2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+        <marker id="arrow-neutral2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6f7e"/></marker>
+      </defs>
+
+      <!-- 01 HOME in center -->
+      <rect x="410" y="200" width="180" height="80" rx="12" fill="#d4a24a" stroke="#d4a24a" stroke-width="1"/>
+      <text x="500" y="225" text-anchor="middle" font-family="Bebas Neue" font-size="11" letter-spacing="2.5" fill="#1a1305">SCREEN 01 · HUB</text>
+      <text x="500" y="255" text-anchor="middle" font-family="Space Grotesk" font-weight="800" font-size="20" letter-spacing="-0.5" fill="#1a1305">HOME</text>
+
+      <!-- 10 Inbox (top left, via bell) -->
+      <rect x="60" y="30" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="135" y="53" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 10</text>
+      <text x="135" y="80" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="15" fill="#f0ead6">INBOX</text>
+      <path d="M 210 100 Q 300 140, 420 210" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)"/>
+      <path d="M 420 220 Q 300 155, 220 100" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="285" y="145" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">tap bell</text>
+
+      <!-- 02 CHECK IN (top center) -->
+      <rect x="425" y="60" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="500" y="83" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 02</text>
+      <text x="500" y="110" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">CHECK IN</text>
+      <path d="M 500 200 L 500 135" stroke="#d4a24a" fill="none" stroke-width="1.5" marker-end="url(#arrow-gold2)"/>
+      <path d="M 510 135 L 510 200" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="530" y="170" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">CHECK IN button</text>
+
+      <!-- 09 Challenges (top right) -->
+      <rect x="790" y="30" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="865" y="53" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 09</text>
+      <text x="865" y="80" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">CHALLENGES</text>
+      <path d="M 590 210 Q 700 140, 800 100" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)"/>
+      <path d="M 790 110 Q 690 155, 590 220" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="720" y="145" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">CHALLENGE btn</text>
+
+      <!-- 03 HABITS (left) -->
+      <rect x="60" y="220" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="135" y="243" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 03</text>
+      <text x="135" y="270" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">HABITS</text>
+      <line x1="410" y1="240" x2="215" y2="240" stroke="#6c6f7e" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <line x1="215" y1="255" x2="410" y2="255" stroke="#6c6f7e" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="285" y="235" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">nav tab</text>
+
+      <!-- 07 DAILY LIMIT (right, result-style) -->
+      <rect x="790" y="220" width="150" height="70" rx="10" fill="#1c2338" stroke="#d4a24a"/>
+      <defs>
+        <linearGradient id="gold-grad" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#d4a24a"/>
+          <stop offset="100%" stop-color="#9a7521"/>
+        </linearGradient>
+      </defs>
+      <text x="865" y="243" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 07</text>
+      <text x="865" y="270" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#f0ead6">DAILY LIMIT</text>
+      <path d="M 590 240 Q 700 220, 790 240" stroke="#d4a24a" fill="none" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrow-gold2)"/>
+      <path d="M 790 265 Q 700 285, 590 260" stroke="#6c6f7e" fill="none" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#arrow-neutral2)"/>
+      <text x="700" y="220" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">final status ready</text>
+
+      <!-- 04 PROGRESS (bottom center) -->
+      <rect x="425" y="360" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="500" y="383" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 04</text>
+      <text x="500" y="410" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">PROGRESS</text>
+      <line x1="500" y1="290" x2="500" y2="355" stroke="#6c6f7e" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <line x1="512" y1="355" x2="512" y2="290" stroke="#6c6f7e" stroke-width="1.3" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="530" y="325" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">nav tab</text>
+
+      <!-- 05 LEADERBOARD (bottom left) -->
+      <rect x="60" y="360" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="135" y="383" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 05</text>
+      <text x="135" y="410" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">LEADERBOARD</text>
+      <path d="M 425 395 L 220 395" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <path d="M 220 410 L 425 410" stroke="#6c6f7e" fill="none" stroke-width="1.3" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="285" y="388" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">rank tab</text>
+
+      <!-- 06 PROFILE (bottom right) -->
+      <rect x="790" y="360" width="150" height="70" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="865" y="383" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="2" fill="#d4a24a">SCREEN 06</text>
+      <text x="865" y="410" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#f0ead6">PROFILE</text>
+      <path d="M 590 265 Q 700 315, 790 380" stroke="#6c6f7e" fill="none" stroke-width="1.5" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <path d="M 790 405 Q 690 330, 590 275" stroke="#6c6f7e" fill="none" stroke-width="1.3" marker-end="url(#arrow-neutral2)" stroke-dasharray="3 3"/>
+      <text x="700" y="388" font-family="Inter" font-size="10" fill="#a8a495" font-style="italic">me tab</text>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot node-primary"></div>Home hub</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Main screen</div>
+      <div class="legend-item"><div class="legend-dot node-modal"></div>Highlighted primary/status path</div>
+      <div class="legend-item"><div class="legend-line deep"></div>Push flow</div>
+      <div class="legend-item"><div class="legend-line"></div>Nav / return</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Daily operating rules</h3>
+    <div class="two-col">
+      <ul class="rule-list">
+        <li>Home is the hub. Bottom navigation is Home, Habits, Daily, Rank, and Me.</li>
+        <li>The Daily tab opens its container with Morning/Evening Check-in as the default and Challenges as its secondary destination.</li>
+        <li>The Rank tab opens Progress as the default and Leaderboard as its secondary destination.</li>
+        <li>Inbox opens from the Home bell; Daily Limit opens from Home or Settings.</li>
+      </ul>
+      <ul class="rule-list">
+        <li>Home shows program day, week strip, rank, streak, Codex consistency, habit target, check-ins, challenge, daily-limit result, and motivational content.</li>
+        <li>The open day finalizes at 02:00 cohort time.</li>
+        <li>Finalization settles streaks, badges, challenges, daily-limit result, XP, notifications, analytics, and leaderboards.</li>
+        <li>No usage minutes, app names, or categories exist in the participant or admin experience.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- REWARD MOMENTS -->
+<section class="section" id="reward-flow">
+  <div class="section-head">
+    <h2 class="section-title">Reward moments</h2>
+    <div class="section-desc">Trigger-based celebration overlays. Not part of the nav — they interrupt the current screen when conditions are met.</div>
+  </div>
+
+  <div class="flow-canvas">
+    <svg viewBox="0 0 1000 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="reward-title reward-desc">
+      <title id="reward-title">Reward moments</title>
+      <desc id="reward-desc">A finalized within-limit result posts a daily limit reward and a badge condition creates a celebration and Inbox item.</desc>
+      <defs>
+        <marker id="arrow-gold3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+      </defs>
+
+      <text x="500" y="30" text-anchor="middle" font-family="Bebas Neue" font-size="12" letter-spacing="3" fill="#d4a24a">TRIGGER · WHEN CONDITION MET</text>
+
+      <!-- Trigger 1: finalized daily limit -->
+      <rect x="30" y="65" width="220" height="60" rx="10" fill="#0a0d16" stroke="#6c6f7e" stroke-dasharray="4 3"/>
+      <text x="140" y="88" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#a8a495">CONDITION</text>
+      <text x="140" y="110" text-anchor="middle" font-family="Space Grotesk" font-weight="600" font-size="13" fill="#f0ead6">Final status = within limit</text>
+
+      <line x1="250" y1="95" x2="400" y2="95" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold3)"/>
+
+      <rect x="410" y="65" width="220" height="60" rx="10" fill="url(#gg1)" stroke="#d4a24a"/>
+      <defs><linearGradient id="gg1"><stop offset="0" stop-color="#d4a24a"/><stop offset="1" stop-color="#9a7521"/></linearGradient></defs>
+      <text x="520" y="88" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#1a1305">SCREEN 07</text>
+      <text x="520" y="110" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#1a1305">DAILY LIMIT REWARD</text>
+
+      <line x1="630" y1="95" x2="780" y2="95" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold3)"/>
+      <text x="705" y="87" text-anchor="middle" font-family="Inter" font-size="9" fill="#a8a495" font-style="italic">SERVER POSTS SNAPSHOT XP</text>
+
+      <rect x="790" y="65" width="180" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="880" y="88" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#d4a24a">SCREEN 01</text>
+      <text x="880" y="110" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#f0ead6">HOME (XP updated)</text>
+
+      <!-- Trigger 2: badge unlock -->
+      <rect x="30" y="165" width="220" height="60" rx="10" fill="#0a0d16" stroke="#6c6f7e" stroke-dasharray="4 3"/>
+      <text x="140" y="188" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#a8a495">CONDITION</text>
+      <text x="140" y="210" text-anchor="middle" font-family="Space Grotesk" font-weight="600" font-size="13" fill="#f0ead6">Badge unlocked</text>
+
+      <line x1="250" y1="195" x2="400" y2="195" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold3)"/>
+
+      <rect x="410" y="165" width="220" height="60" rx="10" fill="#1c2338" stroke="#d4a24a"/>
+      <text x="520" y="188" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#d4a24a">MODAL (in place)</text>
+      <text x="520" y="210" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#f0ead6">BADGE CELEBRATION</text>
+
+      <line x1="630" y1="195" x2="780" y2="195" stroke="#d4a24a" stroke-width="1.5" marker-end="url(#arrow-gold3)"/>
+      <text x="705" y="187" text-anchor="middle" font-family="Inter" font-size="9" fill="#a8a495" font-style="italic">also creates notif</text>
+
+      <rect x="790" y="165" width="180" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="880" y="188" text-anchor="middle" font-family="Bebas Neue" font-size="10" letter-spacing="1.5" fill="#d4a24a">SCREEN 10</text>
+      <text x="880" y="210" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#f0ead6">INBOX (new item)</text>
+    </svg>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#0a0d16;border:1px dashed #6c6f7e"></div>Condition (backend)</div>
+      <div class="legend-item"><div class="legend-dot node-modal"></div>Reward screen</div>
+      <div class="legend-item"><div class="legend-dot node-standard"></div>Downstream update</div>
+    </div>
+  </div>
+  <div class="flow-notes">
+    <h3>Reward settlement rules</h3>
+    <div class="three-col">
+      <article class="spec-card"><span class="card-label">DAILY ACTIONS</span><p>The server posts each habit's day-snapshotted XP and the snapshotted target/full-set bonuses. Launch defaults are +5 per habit, +50 at six eligible habits, and another +50 for the complete required set. Morning and evening check-ins remain +5 each, with no pair bonus.</p></article>
+      <article class="spec-card"><span class="card-label">MISSIONS</span><p>Each occurrence shows and awards one exact snapshotted value from its published challenge version. Launch defaults are +30 for a daily challenge and +400 for a weekly mission.</p></article>
+      <article class="spec-card gold"><span class="card-label">DAILY LIMIT</span><p>A finalized <strong>Within limit</strong> result posts one atomic +130 XP event under the MVP v1 ruleset. Exceeded or Unavailable posts zero.</p></article>
+    </div>
+    <div class="callout privacy"><strong>Server authority:</strong> celebrations never determine eligibility. The backend writes a unique ledger event first; any Claim or View action is idempotent and purely presentational. Badges and level-ups award 0 XP.</div>
+  </div>
+</section>
+
+<!-- NOTIFICATION DEEP LINKS -->
+<section class="section" id="notification-flow">
+  <div class="section-head">
+    <h2 class="section-title">Notification deep links</h2>
+    <div class="section-desc">Push notification taps route to specific screens. Not just the inbox.</div>
+  </div>
+
+  <div class="flow-canvas">
+    <svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="notif-title notif-desc">
+      <title id="notif-title">Notification deep-link routing</title>
+      <desc id="notif-desc">Push notifications route to approved feature screens, while invalid destinations fall back to Inbox.</desc>
+      <defs>
+        <marker id="ar-g4" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker>
+      </defs>
+
+      <!-- Push received center -->
+      <rect x="380" y="150" width="240" height="70" rx="10" fill="#d4a24a" stroke="#d4a24a"/>
+      <text x="500" y="175" text-anchor="middle" font-family="Bebas Neue" font-size="11" letter-spacing="2" fill="#1a1305">PUSH RECEIVED</text>
+      <text x="500" y="200" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="14" fill="#1a1305">Firebase Cloud Messaging</text>
+
+      <!-- 5 notif types → 5 targets -->
+      <!-- Streak -->
+      <line x1="380" y1="180" x2="230" y2="55" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="60" y="30" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="145" y="52" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">STREAK NOTIF</text>
+      <text x="145" y="75" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 04 PROGRESS</text>
+
+      <!-- Admin announcement -->
+      <line x1="380" y1="175" x2="230" y2="155" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="60" y="130" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="145" y="152" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">ADMIN ANNOUNCEMENT</text>
+      <text x="145" y="175" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 10 INBOX</text>
+
+      <!-- Badge -->
+      <line x1="380" y1="200" x2="230" y2="245" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="60" y="220" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="145" y="242" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">BADGE UNLOCKED</text>
+      <text x="145" y="265" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 04 PROGRESS</text>
+
+      <!-- Daily limit -->
+      <line x1="620" y1="175" x2="770" y2="155" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="770" y="130" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="855" y="152" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">LIMIT STATUS READY</text>
+      <text x="855" y="175" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 07 LIMIT</text>
+
+      <!-- Cohort position update -->
+      <line x1="620" y1="180" x2="770" y2="55" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="770" y="30" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="855" y="52" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">POSITION UPDATE</text>
+      <text x="855" y="75" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 05 LB</text>
+
+      <!-- Reminder -->
+      <line x1="620" y1="200" x2="770" y2="245" stroke="#d4a24a" stroke-width="1.2" marker-end="url(#ar-g4)"/>
+      <rect x="770" y="220" width="170" height="60" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="855" y="242" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">CHECK-IN REMINDER</text>
+      <text x="855" y="265" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 02 CHECK</text>
+
+      <!-- Fallback -->
+      <line x1="500" y1="220" x2="500" y2="315" stroke="#6c6f7e" stroke-width="1.2" marker-end="url(#ar-g4)" stroke-dasharray="3 3"/>
+      <rect x="380" y="315" width="240" height="55" rx="10" fill="#1c2338" stroke="rgba(240,234,214,0.14)"/>
+      <text x="500" y="335" text-anchor="middle" font-family="Bebas Neue" font-size="9" letter-spacing="1.5" fill="#a8a495">FALLBACK · NO DEEP LINK</text>
+      <text x="500" y="357" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="13" fill="#d4a24a">→ SCREEN 10 INBOX</text>
+    </svg>
+  </div>
+  <div class="flow-notes">
+    <h3>Deep-link and delivery policy</h3>
+    <div class="two-col">
+      <ul class="rule-list">
+        <li>Check-in reminders open Check-in; habit reminders open Habits; challenge reminders open the relevant challenge occurrence.</li>
+        <li>Streak, badge, and level events open Progress; position changes open Leaderboard.</li>
+        <li>The daily-limit push says only “Your daily limit status is ready.” The lock screen never reveals the result.</li>
+        <li>Admin announcements open a read-only Inbox detail. Mentor chat is not part of MVP.</li>
+      </ul>
+      <ul class="rule-list">
+        <li>Every event creates an Inbox record even when push permission is denied.</li>
+        <li>Deep links are chosen from a fixed allow-list; arbitrary URLs are rejected.</li>
+        <li>Quiet hours are 21:00–07:00 in the cohort timezone, with a maximum of three non-transactional pushes per participant/day.</li>
+        <li>Expired, removed, or unauthorized destinations return to Inbox with neutral copy.</li>
+      </ul>
+    </div>
+    <div class="callout"><strong>Inbox behavior:</strong> rename “Clear All” to “Mark All Read.” Inbox records are kept indefinitely unless the account is deleted, and achievement messages caused by one action should be bundled.</div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SCREEN REQUIREMENTS -->
+<section class="section" id="screens">
+  <div class="section-head">
+    <div class="section-kicker">MOBILE INFORMATION ARCHITECTURE</div>
+    <h2 class="section-title">Screen requirements and complete state coverage</h2>
+    <p class="section-desc">Every screen must implement the listed purpose, data contract, and non-happy-path states before it is considered ready.</p>
+  </div>
+
+  <div class="table-wrap">
+    <table class="spec-table">
+      <thead><tr><th>Screen</th><th>Required content and actions</th><th>Required states</th></tr></thead>
+      <tbody>
+        <tr><td><strong>01 · Home</strong></td><td>Greeting, program day, unread count, week strip, lifetime level/rank, ARES streak, 28-day Codex consistency, habit target, morning/evening check-ins, current challenge, final Daily Limit card, and motivational content.</td><td>First day; loading; retryable error; no cohort; no assignments; partial progress; target earned; all required habits complete; day complete; stale cache labelled “Last synced.”</td></tr>
+        <tr><td><strong>02 · Check-in</strong></td><td>Morning or evening energy, labelled mood, focus, “Prefer not to answer,” and optional intention/reflection text. One confirmed record per program date and period; edits are allowed until the window closes with no new XP.</td><td>Available; draft; validation; submitting; completed/editable; completed/read-only; missed; outside window; failed/retry.</td></tr>
+        <tr><td><strong>03 · Habits</strong></td><td>Effective-dated assignment snapshot, explicit daily target, observable criterion, exact snapshotted XP value, completion, verification type, and each habit’s independent streak.</td><td>Empty; available; saving; complete; undoing; disabled; target earned; target reversed; day finalized.</td></tr>
+        <tr><td><strong>04 · Progress</strong></td><td>Lifetime XP, level, rank, next threshold from the active ruleset version, ARES/current-longest streak, shields, habit and Daily Limit streaks, versioned badge cabinet, and append-only XP activity.</td><td>New account; populated; exact threshold; maximum rank; ruleset activation; correction/reversal; no badges; stale; error.</td></tr>
+        <tr><td><strong>05 · Leaderboard</strong></td><td>Cohort-only Day/Week/Month period XP, explicit score label, lifetime rank beside each alias, top eight plus pinned self, and opt-in controls.</td><td>Disabled; opted out; fewer than five visible users; tie; self outside top eight; stale; error.</td></tr>
+        <tr><td><strong>06 · Profile</strong></td><td>Private 28-day growth-practice areas, badges, language/accessibility/privacy settings, and account deletion. Share entry is hidden at MVP launch.</td><td>Insufficient data; partial data; populated; settings saved; deletion pending; sharing disabled.</td></tr>
+        <tr><td><strong>07 · Daily Limit</strong></td><td>Permission/setup explanation, “result after day closes” state, and only the finalized status: <code>within_limit</code>, <code>exceeded</code>, or <code>unavailable</code>.</td><td>Not configured; permission not requested; denied; revoked; monitoring; within limit; exceeded; unavailable; sync retry.</td></tr>
+        <tr><td><strong>08 · Onboarding</strong></td><td>Cohort-code text field and validation, email/password creation, email verification, EN/NL, safe alias, participant notice/assent, tutorial using the cohort's active catalog/economy version, notifications, and optional native Daily Limit permission.</td><td>Invalid; expired; disabled; cohort full; rate-limited; duplicate account; lawful-enrollment block; save failure; resume; complete.</td></tr>
+        <tr><td><strong>09 · Challenges</strong></td><td>One weekly mission plus up to five daily occurrences, clear criterion, exact occurrence-snapshotted XP, deadline, safety/report action, join/complete, and server-finalized result.</td><td>Available; joined; in progress; complete; finalized; expired; paused; disabled; ineligible; reported; error.</td></tr>
+        <tr><td><strong>10 · Inbox</strong></td><td>Read/unread achievement, reminder, status-ready, weekly summary, and audited admin-announcement messages with allow-listed deep links and preferences.</td><td>Empty; loading; paginating; read/unread; expired or unauthorized target; push disabled; retryable error.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="three-col subsection">
+    <article class="spec-card"><span class="card-label">PERSISTENT NAV</span><h3>Five destinations</h3><p>Home · Habits · Daily · Rank · Me. Inbox is opened from the Home bell; Daily Limit is a Home card or Settings destination, never a sixth tab.</p></article>
+    <article class="spec-card"><span class="card-label">WRITE BEHAVIOR</span><h3>Confirmed, not assumed</h3><p>Reward-affecting actions remain pending until the backend confirms them. A failed optimistic action rolls back with a clear Retry control; no offline rewards are queued.</p></article>
+    <article class="spec-card"><span class="card-label">ACCESSIBILITY</span><h3>Equivalent for everyone</h3><p>44 pt iOS/48 dp Android targets, 200% text scaling, screen-reader names and state, logical focus, reduced motion, non-color cues, and accessible errors are release criteria.</p></article>
+  </div>
+  <div class="callout privacy"><strong>Daily Limit display contract:</strong> participant and admin surfaces must never show or receive observed duration, remaining duration, progress percentage, app names, installed apps, domains, viewed content, or categories. The only participant result is a labelled final status.</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- GAMIFICATION -->
+<section class="section" id="gamification">
+  <div class="section-head">
+    <div class="section-kicker">LAUNCH DEFAULTS · VERSIONED ECONOMY</div>
+    <h2 class="section-title">XP, levels, ranks, and streaks</h2>
+    <p class="section-desc">One server-owned, admin-configured economy expressed as immutable ledger events. Values below are the initial published defaults. Clients render the server's effective version and confirmed results; they never calculate or submit award amounts.</p>
+  </div>
+
+  <div class="summary-grid">
+    <div class="spec-card gold"><span class="card-label">LIFETIME XP</span><div class="metric-value">Net finalized</div><div class="metric-label">Non-reversed XP; never resets</div></div>
+    <div class="spec-card"><span class="card-label">LEADERBOARD XP</span><div class="metric-value">Period only</div><div class="metric-label">Eligible events in Day/Week/Month</div></div>
+    <div class="spec-card"><span class="card-label">PENDING XP</span><div class="metric-value">Not counted</div><div class="metric-label">Requested but not yet confirmed</div></div>
+    <div class="spec-card"><span class="card-label">ADJUSTMENT</span><div class="metric-value">Compensating</div><div class="metric-label">Audited event; never an overwritten total</div></div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Launch-default XP award table</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Source</th><th>Launch default</th><th>Frequency / cap</th><th>Leaderboard?</th><th>Idempotency key</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Assigned habit</strong></td><td class="num">+5</td><td>Each snapshotted occurrence once/day; assignment count is configurable</td><td>From snapshot; H10 default is No</td><td><code>habit/{user}/{date}/{occurrence}</code></td></tr>
+          <tr><td><strong>Configured daily target</strong></td><td class="num">+50</td><td>Once/day after the snapshotted target count; launch count is six distinct eligible habits</td><td>From snapshot; launch default Yes</td><td><code>target/{user}/{date}/{snapshot}</code></td></tr>
+          <tr><td><strong>Full-set completion</strong></td><td class="num">+50</td><td>Once/day when every required habit in the day snapshot is complete; cumulative with the target bonus</td><td>From snapshot; launch default No</td><td><code>fullCodex/{user}/{date}/{snapshot}</code></td></tr>
+          <tr><td><strong>Morning check-in</strong></td><td class="num">+5</td><td>Once/program date</td><td>Yes</td><td><code>checkin/{user}/{date}/morning</code></td></tr>
+          <tr><td><strong>Evening check-in</strong></td><td class="num">+5</td><td>Once/program date</td><td>Yes</td><td><code>checkin/{user}/{date}/evening</code></td></tr>
+          <tr><td><strong>Daily challenge</strong></td><td class="num">+30</td><td>Each occurrence once; maximum five/day; XP is exact per challenge version</td><td>From occurrence; launch default Yes</td><td><code>dailyChallenge/{user}/{occurrence}</code></td></tr>
+          <tr><td><strong>Weekly mission</strong></td><td class="num">+400</td><td>One joined mission/week; exact versioned XP settles after finalization</td><td>From occurrence; Within-Limit Week default No</td><td><code>weeklyChallenge/{user}/{occurrence}</code></td></tr>
+          <tr><td><strong>Daily Limit: within limit</strong></td><td class="num">+130</td><td>One atomic event after finalization</td><td>No</td><td><code>dailyLimit/{user}/{date}</code></td></tr>
+          <tr><td><strong>Badge or level</strong></td><td class="num">0</td><td>Cosmetic recognition</td><td>No</td><td>Milestone-specific unique key</td></tr>
+          <tr><td><strong>Admin correction</strong></td><td class="num">±</td><td>Documented data error only</td><td>No</td><td>Unique correction + reversal reference</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>Configuration and snapshot contract:</strong> authorized admins edit draft habit/challenge XP, target and full-set bonuses, leaderboard eligibility, badge definitions, and rank labels/thresholds, then publish an immutable future-effective version. XP controls accept one exact whole-number value, never a range. At program-day open the server snapshots assignments, definition versions, exact habit XP, target eligibility/count/bonus, required full set/bonus, leaderboard flags, and ruleset. A published <code>ChallengeOccurrence</code> snapshots its copy, criterion, eligibility, deadline, exact XP, leaderboard flag, and ruleset. Late completions and corrections use that source snapshot; later admin edits never reprice history.</div>
+  </div>
+
+  <div class="two-col subsection">
+    <article class="spec-card gold">
+      <span class="card-label">LAUNCH-DEFAULT DAY EXAMPLE</span>
+      <h3>Configured maximum = 450 XP</h3>
+      <div class="formula">Habits: 12×5 + 50 + 50        = 160
+Check-ins: 5 + 5                =  10
+Daily challenges: 5×30          = 150
+Final Daily Limit reward        = 130
+TOTAL                            = 450 XP</div>
+      <p>Under the launch-default configuration, the recurring maximum is 450 XP/day. A +400 weekly mission may settle additionally, producing an example settlement maximum of 850 XP/day and 3,550 XP across seven days. The server and admin preview must recompute these figures from each published version; the client must not hardcode them.</p>
+    </article>
+    <article class="spec-card">
+      <span class="card-label">LAUNCH-DEFAULT WORKED EXAMPLE</span>
+      <h3>Day closes at 2,340 lifetime XP</h3>
+      <div class="formula">Opening lifetime XP            2,090
+Six habits: 6×5 + 50              +80
+Morning + evening check-ins       +10
+Read challenge                    +30
+Final Daily Limit reward         +130
+TOTAL EARNED                     +250
+CLOSING LIFETIME XP             2,340</div>
+      <p>With the launch-default rank rules, 2,340 XP is Level 4 · Operator, with 660 XP remaining to Level 5. The launch design's absolute-threshold bar uses <code>2,340 ÷ 3,000</code>, so this example displays <strong>78%</strong>, not 73%. After a ruleset change the server supplies the active level, rank, thresholds, and progress denominator.</p>
+    </article>
+  </div>
+  <div class="callout warning"><strong>Launch-default calibration:</strong> six eligible +5 habits, the +50 target, two +5 check-ins, one +30 daily challenge, and the +130 within-limit result total 250 XP. Completing both check-ins creates no extra award. Adding one +400 weekly mission produces 2,150 XP in a full seven-day example. The launch theoretical maximum is 3,550 XP/week and reaches launch Level 12 in about 5.2 weeks; every published economy/rank version requires a recalculated preview before activation.</div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Launch-default level and rank thresholds</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Level</th><th>Rank</th><th>Starts at lifetime XP</th><th>Level</th><th>Rank</th><th>Starts at lifetime XP</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><strong>Starter</strong></td><td class="num">0</td><td class="num">7</td><td><strong>Leader</strong></td><td class="num">5,750</td></tr>
+          <tr><td class="num">2</td><td><strong>Starter</strong></td><td class="num">500</td><td class="num">8</td><td><strong>Leader</strong></td><td class="num">7,500</td></tr>
+          <tr><td class="num">3</td><td><strong>Operator</strong></td><td class="num">1,200</td><td class="num">9</td><td><strong>Champion</strong></td><td class="num">9,500</td></tr>
+          <tr><td class="num">4</td><td><strong>Operator</strong></td><td class="num">2,000</td><td class="num">10</td><td><strong>Champion</strong></td><td class="num">12,000</td></tr>
+          <tr><td class="num">5</td><td><strong>Mentor</strong></td><td class="num">3,000</td><td class="num">11</td><td><strong>Role Model</strong></td><td class="num">15,000</td></tr>
+          <tr><td class="num">6</td><td><strong>Mentor</strong></td><td class="num">4,250</td><td class="num">12</td><td><strong>Role Model</strong></td><td class="num">18,500</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>Editable rank rules:</strong> these names and thresholds are launch defaults. The highest reached threshold wins under the cohort's active <code>GamificationRulesetVersion</code>. Authorized admins may edit exact thresholds, level/rank labels, and EN/NL presentation in a draft; Level 1 starts at 0 and later thresholds must be unique and strictly increasing. Publication requires impact preview, distinct authorized review, a future 02:00 boundary, explicit handling of any projected demotion, projection migration, and rollback plan. Earned XP and historic evidence never change. Max-level users keep earning XP. The display rank “Mentor” uses a different enum from an internal account role.</div>
+  </div>
+
+  <div class="two-col subsection">
+    <article class="spec-card">
+      <span class="card-label">ARES STREAK</span><h3>Configured-target consistency chain</h3>
+      <ul class="rule-list">
+        <li>A day qualifies only after finalization when the snapshotted target count of distinct streak-eligible assigned habits is complete. The launch count is six; H10 is launch-default ineligible.</li>
+        <li>Today remains provisional. Store current streak, longest streak, last qualified date, and shield balance.</li>
+        <li>Earn one shield at 7, 30, 60, 90, then every additional 30 real qualified days; maximum balance is one.</li>
+        <li>A missed day consumes a shield and preserves the chain but grants no day credit or XP; without a shield, current streak resets.</li>
+      </ul>
+    </article>
+    <article class="spec-card">
+      <span class="card-label">OTHER STREAKS</span><h3>Independent, transparent measures</h3>
+      <ul class="rule-list">
+        <li>Individual habit streaks use their own due schedule and no shield.</li>
+        <li>The within-limit streak counts only finalized <code>within_limit</code> days, offers no XP bonus, and uses no shield.</li>
+        <li><code>unavailable</code> never counts as within limit, never creates an exceeded label, and freezes rather than resets the within-limit streak.</li>
+        <li>Repair is reserved for verified outage, synchronization, or admin error and requires actor, reason, evidence, before/after values, and timestamp.</li>
+      </ul>
+    </article>
+  </div>
+
+  <div class="callout privacy"><strong>Ledger contract:</strong> every event stores user, organization, cohort-at-event, source definition/version/occurrence and snapshot IDs, program date/week, server timestamp, the exact awarded lifetime and leaderboard deltas, ruleset version, idempotency key, and optional reversal reference. Corrections append an exact compensating event against the original snapshot. Badges, ranks, and Daily Limit results never create hidden bonus XP.</div>
+</section>
+
+<div class="section-divider"></div>
+
+  <!-- LAUNCH-DEFAULT CONTENT CATALOGS -->
+<section class="section" id="catalogs">
+  <div class="section-head">
+    <div class="section-kicker">LAUNCH CONTENT</div>
+    <h2 class="section-title">Launch-default habits, check-ins, challenges, growth, and badges</h2>
+    <p class="section-desc">These are the seeded first-release definitions, values, and exact XP—not permanent hard-coded content. Authorized admins can create and publish successor versions; every version must keep observable, age-appropriate criteria and complete EN/NL content.</p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Twelve launch-default habits</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>ID</th><th>Habit</th><th>What counts once today</th><th>Growth area</th><th>Launch XP</th><th>Verification</th></tr></thead>
+        <tbody>
+          <tr><td class="num">H01</td><td><strong>Discipline</strong></td><td>Complete one committed task before choosing easy entertainment.</td><td>Discipline</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H02</td><td><strong>Respect</strong></td><td>Listen fully to someone or respect a clearly stated boundary.</td><td>Communication</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H03</td><td><strong>Growth mindset</strong></td><td>Retry, request feedback, or name something learned from a mistake.</td><td>Problem solving</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H04</td><td><strong>Responsibility</strong></td><td>Complete one responsibility you agreed to handle.</td><td>Reliability</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H05</td><td><strong>Cooperation</strong></td><td>Contribute to a shared task and give someone else space to contribute.</td><td>Communication</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H06</td><td><strong>Read</strong></td><td>Read or listen with focus for at least ten minutes.</td><td>Problem solving</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H07</td><td><strong>Move</strong></td><td>Choose accessible movement at your ability for at least 15 minutes.</td><td>Discipline</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H08</td><td><strong>School work</strong></td><td>Complete one 20-minute focus block or a planned learning task.</td><td>Reliability</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H09</td><td><strong>Help at home</strong></td><td>Take one useful action for home, family, or community.</td><td>Leadership</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H10</td><td><strong>Stay within daily limit</strong></td><td>The finalized native Daily Limit status is <code>within_limit</code>.</td><td>Discipline</td><td class="num">+5</td><td>OS verified</td></tr>
+          <tr><td class="num">H11</td><td><strong>Speak with respect</strong></td><td>Use calm words or pause before responding during a difficult moment.</td><td>Communication</td><td class="num">+5</td><td>Self-attested</td></tr>
+          <tr><td class="num">H12</td><td><strong>Choose safety</strong></td><td>Practice one safety skill—name a trusted adult, review block/report, plan a safe exit—or use it when genuinely needed.</td><td>Leadership</td><td class="num">+5</td><td>Self-attested</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>Assignment rules:</strong> +5 per habit, six eligible habits for +50, and the all-required-set +50 are launch defaults. At day-open the server snapshots every assigned <code>HabitVersion</code>, exact XP, required-set membership, target eligibility/count/bonus, full-set bonus, verification source, and leaderboard eligibility. The target cannot exceed eligible assignments. Completing the required set is cumulative with the target bonus. H10 keeps the reserved system-only Daily Limit completion source even when admins version its title, criterion copy, XP, or presentation; its launch-default XP is +5 and it is excluded from the target, ARES streak, and leaderboard. The full-set bonus and separate +130 Daily Limit reward are launch-default leaderboard-ineligible.</div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Check-in content and visibility</h3>
+    <div class="two-col">
+      <article class="spec-card gold">
+        <span class="card-label">MORNING · 04:00–14:00</span>
+        <h3>Set a gentle direction</h3>
+        <ul class="rule-list">
+          <li>Energy: 0–10 or Prefer not to answer.</li>
+          <li>Mood: five clearly labelled options or Prefer not to answer.</li>
+          <li>Focus: 0–10 or Prefer not to answer.</li>
+          <li>Optional intention, maximum 160 characters.</li>
+        </ul>
+      </article>
+      <article class="spec-card">
+        <span class="card-label">EVENING · 18:00–01:59</span>
+        <h3>Reflect without judgment</h3>
+        <ul class="rule-list">
+          <li>Same energy, labelled mood, focus, and Prefer not to answer options.</li>
+          <li>Optional reflection, maximum 240 characters.</li>
+          <li>Prompt: “What worked, what did you learn, and what is one next step?”</li>
+          <li>The same record may be edited until its check-in window closes; edits, retries, and authorized corrections never re-award XP. It is read-only after the window.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="callout privacy"><strong>Equal reward, visible to authorized admins:</strong> every valid submission earns the same MVP v1 +5 XP regardless of the emotional answer; morning and evening are independent and there is no pair bonus. Authorized admins may view and report the submitted energy, mood, focus, intention, and reflection answers. All check-in records are kept indefinitely unless the account is deleted. The player screen must state that ARES is not continuously monitored or an emergency service.</div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Daily challenge launch-default catalog</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Challenge</th><th>Completion criterion</th><th>Launch XP</th><th>Primary area</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Focused Reading</strong></td><td>Read or listen with focus for ten minutes.</td><td class="num">30</td><td>Problem solving</td></tr>
+          <tr><td><strong>Help at Home</strong></td><td>Complete one useful home, family, or community action.</td><td class="num">30</td><td>Leadership</td></tr>
+          <tr><td><strong>Phone Wind-down</strong></td><td>Park the phone 30 minutes before sleep.</td><td class="num">30</td><td>Discipline</td></tr>
+          <tr><td><strong>Focus Block</strong></td><td>Complete one 20-minute focus block.</td><td class="num">30</td><td>Reliability</td></tr>
+          <tr><td><strong>Prepare Tomorrow</strong></td><td>Set out essentials or write tomorrow’s top task.</td><td class="num">30</td><td>Reliability</td></tr>
+          <tr><td><strong>Move Your Way</strong></td><td>Choose accessible movement at your ability for 15 minutes.</td><td class="num">30</td><td>Discipline</td></tr>
+          <tr><td><strong>Breathing Reset</strong></td><td>Complete a calm 60-second breathing reset.</td><td class="num">30</td><td>Discipline</td></tr>
+          <tr><td><strong>Appreciation</strong></td><td>Share one specific and sincere appreciation.</td><td class="num">30</td><td>Communication</td></tr>
+          <tr><td><strong>Ask Clearly</strong></td><td>Ask a clear question or request help.</td><td class="num">30</td><td>Communication</td></tr>
+          <tr><td><strong>Try Two Ways</strong></td><td>Try two different approaches to one problem.</td><td class="num">30</td><td>Problem solving</td></tr>
+          <tr><td><strong>Teach Something</strong></td><td>Teach or share something useful with someone you know.</td><td class="num">30</td><td>Leadership</td></tr>
+          <tr><td><strong>Reset a Space</strong></td><td>Reset a desk or shared space for ten minutes.</td><td class="num">30</td><td>Reliability</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body-copy subsection">The scheduler may publish up to five daily occurrences, with a maximum of two per growth area and one physical occurrence. The launch-default set of five +30 occurrences exposes 150 XP, but the actual maximum is the sum of the exact XP snapshotted on published occurrences and must be previewed rather than hardcoded. Completion is self-attested with an explicit confirmation; merely opening a card cannot award XP. One real action may satisfy one habit occurrence and one joined challenge/weekly qualifier when criteria overlap, but it cannot satisfy two daily challenges or more than one weekly qualifying day.</p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Weekly mission launch-default catalog and lifecycle</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Mission</th><th>Requirement</th><th>Launch XP</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Safe Connections</strong></td><td>Have one respectful conversation with a known peer or trusted adult on five separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Reading Run</strong></td><td>Complete focused reading on five separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Focus Builder</strong></td><td>Complete a focus block on five separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Help at Home</strong></td><td>Complete a helpful action on four separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Move Your Way</strong></td><td>Complete accessible movement on five separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Phone Wind-down</strong></td><td>Complete the phone wind-down on five separate days.</td><td class="num">400</td></tr>
+          <tr><td><strong>Within-Limit Week</strong></td><td>Receive finalized <code>within_limit</code> status on five program days.</td><td class="num">400</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="flow-canvas dense subsection">
+      <svg class="flow-svg" viewBox="0 0 1000 225" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="challenge-title challenge-desc">
+        <title id="challenge-title">Challenge publication and participation lifecycle</title>
+        <desc id="challenge-desc">Content moves from draft through safety review and publication before a participant can join, complete, and receive a finalized reward.</desc>
+        <defs><marker id="challenge-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker></defs>
+        <rect class="node-standard" x="15" y="70" width="100" height="70" rx="10"/><text class="node-meta" x="65" y="94" text-anchor="middle">CONTENT</text><text class="node-title" x="65" y="120" text-anchor="middle">DRAFT</text>
+        <line class="edge-primary" x1="115" y1="105" x2="145" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-condition" x="155" y="70" width="115" height="70" rx="10"/><text class="node-meta" x="212" y="94" text-anchor="middle">TWO PEOPLE</text><text class="node-title" x="212" y="120" text-anchor="middle">SAFETY REVIEW</text>
+        <line class="edge-primary" x1="270" y1="105" x2="300" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-standard" x="310" y="70" width="105" height="70" rx="10"/><text class="node-meta" x="362" y="94" text-anchor="middle">FUTURE TIME</text><text class="node-title" x="362" y="120" text-anchor="middle">SCHEDULED</text>
+        <line class="edge-primary" x1="415" y1="105" x2="445" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-standard" x="455" y="70" width="105" height="70" rx="10"/><text class="node-meta" x="507" y="94" text-anchor="middle">OCCURRENCE</text><text class="node-title" x="507" y="120" text-anchor="middle">PUBLISHED</text>
+        <line class="edge-primary" x1="560" y1="105" x2="590" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-standard" x="600" y="70" width="90" height="70" rx="10"/><text class="node-meta" x="645" y="94" text-anchor="middle">ELIGIBLE</text><text class="node-title" x="645" y="120" text-anchor="middle">JOIN</text>
+        <line class="edge-primary" x1="690" y1="105" x2="720" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-standard" x="730" y="70" width="105" height="70" rx="10"/><text class="node-meta" x="782" y="94" text-anchor="middle">DEADLINE</text><text class="node-title" x="782" y="120" text-anchor="middle">COMPLETE</text>
+        <line class="edge-primary" x1="835" y1="105" x2="865" y2="105" marker-end="url(#challenge-arrow)"/>
+        <rect class="node-primary" x="875" y="70" width="110" height="70" rx="10"/><text class="node-meta-dark" x="930" y="94" text-anchor="middle">SERVER</text><text class="node-title-dark" x="930" y="120" text-anchor="middle">FINALIZE XP</text>
+        <path class="edge-neutral" d="M 212 140 L 212 158"/>
+        <text class="edge-note" x="212" y="175" text-anchor="middle">revise / reject</text>
+        <text class="edge-note" x="610" y="190" text-anchor="middle">Paused · expired · disabled · ineligible · reported are labelled non-success states and never award XP</text>
+      </svg>
+    </div>
+    <p class="body-copy subsection">A participant may join one weekly mission by Tuesday 23:59. Only one qualifying action counts per program date. The published occurrence snapshots its definition/version, player copy, requirement, exact XP, leaderboard eligibility, start/deadline, and ruleset; that reward settles once after finalization and is attributed to the completed mission week, never the callback week. A signed late correction uses the same source snapshot during the seven-day correction window. An incomplete mission simply expires—there is no penalty, lost XP, or negative label. Within-Limit Week is launch-default excluded from leaderboard scoring.</p>
+    <div class="callout warning"><strong>Safety publication gate:</strong> every admin-created challenge requires age band, physical flag, accessible alternative, EN and NL copy, safety checklist, reviewer and timestamp, and a Report action. Creator and approver must be two distinct authorized principals; self-approval is blocked. Never publish pain, deprivation, body/weight goals, illegal behavior, stranger contact, secrets, location sharing, cold exposure, punitive exercise, or youth image/video proof.</div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">28-day growth practice</h3>
+    <div class="two-col">
+      <article class="spec-card gold">
+        <span class="card-label">CODEX CONSISTENCY</span><h3>One explainable percentage</h3>
+        <div class="formula">round(100 × completed eligible habit occurrences
+          ÷ scheduled eligible habit occurrences)</div>
+        <p>Use the latest 28 finalized program dates. Exclude pre-enrollment dates and H10 occurrences whose final Daily Limit result is <code>unavailable</code>. Require seven eligible days; otherwise show “Building your profile.”</p>
+      </article>
+      <article class="spec-card">
+        <span class="card-label">FIVE GROWTH AREAS</span><h3>Habit mappings</h3>
+        <ul class="rule-list">
+          <li>Discipline: H01, H07, H10.</li>
+          <li>Reliability: H04, H08.</li>
+          <li>Communication: H02, H05, H11.</li>
+          <li>Problem solving: H03, H06.</li>
+          <li>Leadership: H09, H12.</li>
+        </ul>
+        <p>Each area uses the same completed ÷ scheduled formula restricted to its mapped habits. Challenges do not alter these scores. Rename “My Talents” to “28-Day Growth Practice” or “Growth Areas.”</p>
+      </article>
+    </div>
+    <div class="flow-canvas dense subsection">
+      <svg class="flow-svg" viewBox="0 0 1000 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="share-title share-desc">
+        <title id="share-title">Private profile sharing flow</title>
+        <desc id="share-desc">The participant previews and selects safe fields before a local file is generated and passed to the operating-system share sheet.</desc>
+        <defs><marker id="share-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker></defs>
+        <rect class="node-standard" x="25" y="70" width="135" height="70" rx="10"/><text class="node-meta" x="92" y="94" text-anchor="middle">PROFILE</text><text class="node-title" x="92" y="120" text-anchor="middle">SHARE PREVIEW</text>
+        <line class="edge-primary" x1="160" y1="105" x2="205" y2="105" marker-end="url(#share-arrow)"/>
+        <rect class="node-condition" x="215" y="60" width="155" height="90" rx="10"/><text class="node-meta" x="292" y="85" text-anchor="middle">YOUTH SELECTS</text><text class="node-title" x="292" y="111" text-anchor="middle">ALIAS · AREAS</text><text class="edge-note" x="292" y="134" text-anchor="middle">rank · streak · badges</text>
+        <line class="edge-primary" x1="370" y1="105" x2="415" y2="105" marker-end="url(#share-arrow)"/>
+        <rect class="node-standard" x="425" y="60" width="155" height="90" rx="10"/><text class="node-meta" x="502" y="85" text-anchor="middle">PREVIEW</text><text class="node-title" x="502" y="111" text-anchor="middle">RANGE · SAMPLE</text><text class="edge-note" x="502" y="134" text-anchor="middle">method + disclaimer</text>
+        <line class="edge-primary" x1="580" y1="105" x2="625" y2="105" marker-end="url(#share-arrow)"/>
+        <rect class="node-primary" x="635" y="70" width="135" height="70" rx="10"/><text class="node-meta-dark" x="702" y="94" text-anchor="middle">ON DEVICE</text><text class="node-title-dark" x="702" y="120" text-anchor="middle">GENERATE</text>
+        <line class="edge-primary" x1="770" y1="105" x2="815" y2="105" marker-end="url(#share-arrow)"/>
+        <rect class="node-safe" x="825" y="70" width="150" height="70" rx="10"/><text class="node-meta" x="900" y="94" text-anchor="middle">NO PUBLIC URL</text><text class="node-title" x="900" y="120" text-anchor="middle">OS SHARE SHEET</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Launch-default badge catalog</h3>
+    <div class="three-col">
+      <article class="spec-card"><span class="card-label">CONSISTENCY</span><h3>ARES milestones</h3><p>7 Strong · 14 Strong · 30 Strong · 90 Strong · Full Codex · Codex Regular · Reflection Routine.</p></article>
+      <article class="spec-card"><span class="card-label">MISSIONS</span><h3>Participation milestones</h3><p>Mission Finisher · Daily Mission 10 · Daily Mission 50. Criteria count finalized, non-reversed events only.</p></article>
+      <article class="spec-card"><span class="card-label">DAILY LIMIT</span><h3>Binary-result milestones</h3><p>Digital Detox: 3 finalized within-limit days · Focus Week: 7 · Intentional Month: 30.</p></article>
+    </div>
+    <div class="table-wrap subsection">
+      <table class="spec-table">
+        <thead><tr><th>Badge</th><th>Launch-default exact trigger on finalized, non-reversed events</th></tr></thead>
+        <tbody>
+          <tr><td><strong>7 / 14 / 30 / 90 Strong</strong></td><td>Current ARES streak first reaches the named number of qualified program days.</td></tr>
+          <tr><td><strong>Full Codex</strong></td><td>Complete the full required launch set of 12 habits on one finalized program day; H10 must be OS-verified within limit.</td></tr>
+          <tr><td><strong>Codex Regular</strong></td><td>Complete the launch target of at least six eligible habits on 20 separate finalized program days.</td></tr>
+          <tr><td><strong>Reflection Routine</strong></td><td>Complete both morning and evening check-ins on seven separate finalized program days.</td></tr>
+          <tr><td><strong>Mission Finisher</strong></td><td>Complete and receive finalization for the first weekly mission.</td></tr>
+          <tr><td><strong>Daily Mission 10 / 50</strong></td><td>Complete 10 or 50 distinct finalized daily-challenge occurrences.</td></tr>
+          <tr><td><strong>Digital Detox / Focus Week / Intentional Month</strong></td><td>Accumulate 3, 7, or 30 finalized <code>within_limit</code> program dates; dates need not be consecutive.</td></tr>
+          <tr><td><strong>Operator / Mentor / Leader / Champion / Role Model</strong></td><td>Current level first enters the named rank under the active cohort ruleset.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body-copy subsection">Authorized admins can create and version supported badge names, EN/NL copy, icons, tiers, and structured triggers. The table above is the launch-default version. A published definition is immutable; criteria changes apply prospectively and every historic award retains its badge-version and evidence snapshot. Every badge is idempotent, awards 0 XP, creates an Inbox message, and is revoked only when an erroneous source event is corrected. Badge evidence and its source records are kept indefinitely unless the account is deleted; Daily Limit-derived details remain excluded from external profile sharing.</p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Cohort leaderboard calculation</h3>
+    <div class="flow-canvas dense">
+      <svg class="flow-svg" viewBox="0 0 1000 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="board-title board-desc">
+        <title id="board-title">Cohort leaderboard calculation</title>
+        <desc id="board-desc">XP events marked leaderboard eligible by their source snapshot are filtered by effective cohort and period, summed, tied, and presented as the top eight plus the participant.</desc>
+        <defs><marker id="board-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker></defs>
+        <rect class="node-standard" x="20" y="70" width="135" height="70" rx="10"/><text class="node-meta" x="87" y="94" text-anchor="middle">LEDGER</text><text class="node-title" x="87" y="120" text-anchor="middle">ELIGIBLE EVENTS</text>
+        <line class="edge-primary" x1="155" y1="105" x2="195" y2="105" marker-end="url(#board-arrow)"/>
+        <rect class="node-condition" x="205" y="60" width="150" height="90" rx="10"/><text class="node-meta" x="280" y="85" text-anchor="middle">FILTER</text><text class="node-title" x="280" y="111" text-anchor="middle">COHORT · PERIOD</text><text class="edge-note" x="280" y="134" text-anchor="middle">membership at event</text>
+        <line class="edge-primary" x1="355" y1="105" x2="395" y2="105" marker-end="url(#board-arrow)"/>
+        <rect class="node-condition" x="405" y="60" width="150" height="90" rx="10"/><text class="node-meta" x="480" y="85" text-anchor="middle">SNAPSHOT FLAGS</text><text class="node-title" x="480" y="111" text-anchor="middle">ELIGIBILITY</text><text class="edge-note" x="480" y="134" text-anchor="middle">limit · H10 default excluded</text>
+        <line class="edge-primary" x1="555" y1="105" x2="595" y2="105" marker-end="url(#board-arrow)"/>
+        <rect class="node-primary" x="605" y="70" width="135" height="70" rx="10"/><text class="node-meta-dark" x="672" y="94" text-anchor="middle">CALCULATE</text><text class="node-title-dark" x="672" y="120" text-anchor="middle">SUM + RANK</text>
+        <line class="edge-primary" x1="740" y1="105" x2="780" y2="105" marker-end="url(#board-arrow)"/>
+        <rect class="node-safe" x="790" y="60" width="185" height="90" rx="10"/><text class="node-meta" x="882" y="85" text-anchor="middle">SAFE SURFACE</text><text class="node-title" x="882" y="111" text-anchor="middle">TOP 8 + PINNED SELF</text><text class="edge-note" x="882" y="134" text-anchor="middle">opt-in alias · no bottom list</text>
+      </svg>
+    </div>
+    <div class="two-col subsection">
+      <ul class="rule-list body-copy">
+        <li>Day, Week, and Month sum only events whose immutable source snapshot stores <code>leaderboardEligible=true</code>; lifetime rank appears only as context.</li>
+        <li>Competition ranking uses ties such as 1, 2, 2, 4 with an opaque stable tie key for display order.</li>
+        <li>Only opted-in safe aliases appear; opting out never changes earned XP.</li>
+      </ul>
+      <ul class="rule-list body-copy">
+        <li>Hide the board until at least five opted-in cohort members are visible.</li>
+        <li>Never show a global board, surname, bottom-participant list, or “XP behind” pressure message.</li>
+        <li>Deactivated and deleted accounts disappear; historic source events stay attributed for authorized aggregates.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- DATA, PRIVACY, SECURITY -->
+<section class="section" id="data">
+  <div class="section-head">
+    <div class="section-kicker">BACKEND &amp; YOUTH SAFETY</div>
+    <h2 class="section-title">System context, versioned player data, and privacy</h2>
+    <p class="section-desc">Firebase is the shared trust boundary: clients request authorized actions, while Cloud Functions enforce time, assignment, version, idempotency, XP, aggregation, and notification rules.</p>
+  </div>
+
+  <div class="flow-canvas dense">
+    <svg class="flow-svg" viewBox="0 0 1000 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="system-title system-desc">
+      <title id="system-title">ARES MVP system context</title>
+      <desc id="system-desc">The Youth Flutter app and preconfigured player-journey inputs communicate with a Firebase backend that owns business rules, data, notifications, analytics, and audit evidence.</desc>
+      <defs><marker id="system-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d4a24a"/></marker></defs>
+      <rect class="node-standard" x="40" y="45" width="190" height="90" rx="12"/><text class="node-meta" x="135" y="74" text-anchor="middle">FLUTTER · IOS + ANDROID</text><text class="node-title" x="135" y="102" text-anchor="middle">YOUTH MOBILE APP</text><text class="edge-note" x="135" y="124" text-anchor="middle">Youth role · App Check</text>
+      <rect class="node-standard" x="40" y="195" width="190" height="90" rx="12"/><text class="node-meta" x="135" y="224" text-anchor="middle">PLAYER PREREQUISITES</text><text class="node-title" x="135" y="252" text-anchor="middle">CODE · CONTENT · POLICY</text><text class="edge-note" x="135" y="274" text-anchor="middle">configured before play</text>
+      <line class="edge-primary" x1="230" y1="90" x2="365" y2="140" marker-end="url(#system-arrow)"/>
+      <line class="edge-primary" x1="230" y1="240" x2="365" y2="190" marker-end="url(#system-arrow)"/>
+      <rect class="node-primary" x="375" y="100" width="250" height="130" rx="14"/><text class="node-meta-dark" x="500" y="132" text-anchor="middle">FIREBASE TRUST BOUNDARY</text><text class="node-title-dark" x="500" y="161" text-anchor="middle">AUTH · FIRESTORE · FUNCTIONS</text><text class="node-title-dark" x="500" y="186" text-anchor="middle">STORAGE · FCM</text><text x="500" y="210" text-anchor="middle" font-family="Inter" font-size="9" fill="#1a1305">SERVER-AUTHORITATIVE BUSINESS RULES</text>
+      <line class="edge-primary" x1="625" y1="165" x2="720" y2="165" marker-end="url(#system-arrow)"/>
+      <rect class="node-safe" x="730" y="45" width="230" height="90" rx="12"/><text class="node-meta" x="845" y="74" text-anchor="middle">DERIVED SERVICES</text><text class="node-title" x="845" y="101" text-anchor="middle">XP · PROJECTIONS · INBOX</text><text class="edge-note" x="845" y="123" text-anchor="middle">analytics · audit · exports</text>
+      <rect class="node-condition" x="730" y="195" width="230" height="90" rx="12"/><text class="node-meta" x="845" y="224" text-anchor="middle">RELEASE GATES</text><text class="node-title" x="845" y="251" text-anchor="middle">DPO · SAFEGUARDING</text><text class="edge-note" x="845" y="273" text-anchor="middle">security · store entitlement</text>
+      <text class="edge-note" x="500" y="302" text-anchor="middle">Single organization in MVP · immutable organization scope on every owned record · future tenant isolation designed now</text>
+    </svg>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Required entity groups</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Domain</th><th>Required entities</th><th>Key invariants</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Identity &amp; enrollment</strong></td><td><code>Organization</code>, <code>YouthProfile</code>, <code>CohortJoinCode</code>, <code>CohortCodeReservation</code>, <code>ConsentRecord</code>, <code>DeviceRegistration</code></td><td>Server role claims; unique normalized email; cohort-code validation creates only a short-lived enrollment reservation; lifecycle status gates access.</td></tr>
+          <tr><td><strong>Cohorts</strong></td><td><code>Cohort</code>, <code>CohortMembership</code>, <code>ProgramDayPolicy</code></td><td>One active membership; effective dates do not overlap; IANA timezone is fixed per effective policy; membership records the join-code ID, never its raw value.</td></tr>
+          <tr><td><strong>Habits</strong></td><td><code>HabitTemplate</code>, <code>HabitVersion</code>, <code>HabitAssignment</code>, <code>ProgramDaySnapshot</code>, <code>HabitOccurrence</code>, <code>HabitCompletion</code></td><td>Day-open snapshot freezes definition/version, copy, criterion, exact XP, target/full-set membership and bonuses, verification source, and leaderboard/streak eligibility; one final completion per user/occurrence.</td></tr>
+          <tr><td><strong>Check-ins</strong></td><td><code>DailyCheckIn</code>, prompt/content versions</td><td>Unique user/program date/period; server validates window; energy, mood, focus, intention, and reflection are available to authorized admin views and reporting.</td></tr>
+          <tr><td><strong>Challenges</strong></td><td><code>ChallengeTemplate</code>, <code>ChallengeVersion</code>, <code>ChallengeOccurrence</code>, <code>ChallengeJoin</code>, <code>ChallengeCompletion</code>, <code>ContentReport</code></td><td>Published occurrence immutably snapshots definition/version, copy, criterion, exact XP, audience, deadline, eligibility flags, and ruleset; one final completion reward per occurrence.</td></tr>
+          <tr><td><strong>Gamification</strong></td><td><code>GamificationRulesetVersion</code>, <code>LevelDefinitionVersion</code>, <code>BadgeDefinitionVersion</code>, <code>XPTransaction</code>, <code>BadgeAward</code>, projections</td><td>Published versions are immutable and future-effective. XP transactions store exact deltas plus definition, occurrence/snapshot, badge, and ruleset version IDs; idempotency is unique, reversals reference originals, and totals are rebuildable.</td></tr>
+          <tr><td><strong>Daily Limit</strong></td><td><code>DailyLimitPolicy</code>, <code>DailyLimitDeviceBinding</code>, <code>DailyLimitResult</code></td><td>Policy/device binding are effective-dated; result is binary/availability only; no observed-usage telemetry exists.</td></tr>
+          <tr><td><strong>Messaging</strong></td><td><code>NotificationTemplate</code>, <code>Campaign</code>, <code>InboxMessage</code>, <code>DeliveryAttempt</code>, preferences</td><td>Fixed destination allow-list; locale frozen at send; Inbox is source of truth; push is optional delivery.</td></tr>
+          <tr><td><strong>Governance</strong></td><td><code>AuditEvent</code>, <code>ExportJob</code>, <code>DeletionRequest</code>, aggregate snapshots</td><td>Least privilege; suppression; short-lived downloads; deletion retryability; audits append-only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="body-copy subsection">Every organization-owned document carries immutable <code>organizationId</code>, schema version, server <code>createdAt</code>/<code>updatedAt</code>, and actor identifiers where applicable. Do not use client timestamps or mutable display names as identity, ordering, eligibility, or idempotency keys.</p>
+    <div class="callout"><strong>Cohort-code transaction:</strong> store a salted hash of the normalized code and show its raw value only when the admin creates or rotates it. A successful validation transaction checks status, effective dates, cohort lifecycle/capacity, age/enrollment policy, and rate limits, then creates a 30-minute <code>CohortCodeReservation</code>. Registration revalidates and consumes that reservation atomically when it creates the Youth profile and membership. Expired reservations release capacity; retries reuse the reservation ID; existing accounts are directed to sign-in or recovery instead of creating a duplicate membership.</div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Daily Limit data contract</h3>
+    <div class="two-col">
+      <article class="spec-card gold">
+        <span class="card-label">DAILY LIMIT POLICY</span><h3>Authorized configuration</h3>
+        <ul class="rule-list">
+          <li><code>organizationId</code>, <code>cohortId</code>, <code>thresholdMinutes</code> (30–300, step 15), and IANA timezone.</li>
+          <li><code>effectiveFrom</code>/<code>effectiveTo</code>, policy version, feature enabled, created/published actor and timestamps. Reward value is not editable here.</li>
+          <li>The policy active at day-open is locked for that program date; a change applies from the next scheduled boundary.</li>
+          <li>The configured threshold is policy data visible only to authorized administrators editing the cohort.</li>
+          <li>The MVP v1 +130 value and its leaderboard exclusion live in the approved gamification ruleset, separate from the Daily Limit policy editor.</li>
+        </ul>
+      </article>
+      <article class="spec-card">
+        <span class="card-label">DAILY LIMIT RESULT</span><h3>Minimum final outcome</h3>
+        <ul class="rule-list">
+          <li><code>userId</code>, organization, cohort-at-event, program date, policy version.</li>
+          <li><code>status</code>: <code>within_limit</code> | <code>exceeded</code> | <code>unavailable</code>.</li>
+          <li>Server <code>finalizedAt</code>, bound primary-device ID, callback deadline, and coarse technical availability reason where operationally required.</li>
+          <li>Unique user/program-date constraint and source attestation metadata without usage detail; corrections reference the prior result/version.</li>
+        </ul>
+      </article>
+    </div>
+    <div class="callout warning"><strong>Prohibited by design:</strong> measured or remaining duration, percentage, time saved, threshold overage, app/package/bundle names, installed app list, category, domain, content, browsing history, per-app events, and raw platform usage payloads must not appear in the schema, logs, analytics, crash reports, exports, admin UI, or participant UI.</div>
+    <div class="callout"><strong>Storage policy:</strong> ARES applies no automatic time-based deletion to player records. Accounts, check-ins, messages, completions, XP, badges, Daily Limit results, and audit evidence are kept indefinitely unless an explicit account-deletion workflow is completed.</div>
+  </div>
+
+  <div class="three-col subsection">
+    <article class="spec-card"><span class="card-label">AUTHORIZATION</span><h3>Deny by default</h3><p>Firestore rules and callable functions verify role, status, organization, cohort scope, allowed fields, ownership, and transition. Cross-organization negative fixtures run in CI.</p></article>
+    <article class="spec-card"><span class="card-label">APPLICATION SECURITY</span><h3>Layered controls</h3><p>App Check, cohort-code hashing and enumeration-resistant errors, attempt/cooldown limits, server-only XP, secret manager, dependency scanning, redacted telemetry, input/output encoding, upload restrictions, and formula-safe CSV.</p></article>
+    <article class="spec-card"><span class="card-label">OPERATIONS</span><h3>Recover and stop safely</h3><p>Alerts, incident and breach runbooks, tested backup/restore, deletion retry queue, and kill switches for XP, challenges, notifications, profile sharing, leaderboard, and Daily Limit rewards.</p></article>
+  </div>
+  <div class="callout privacy"><strong>Hosting wording:</strong> document “EU-region customer data where configurable, with approved international-transfer safeguards.” Do not claim the entire Firebase-based system is automatically or fully EU-hosted. DPO/legal approval, a DPIA, processor/transfer documentation, store disclosures, and country-specific youth enrollment rules are launch dependencies.</div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- LAUNCH CONTRACT -->
+<section class="section" id="launch">
+  <div class="section-head">
+    <div class="section-kicker">BUILD &amp; RELEASE CONTRACT</div>
+    <h2 class="section-title">Design corrections, Definition of Done, and scope boundary</h2>
+    <p class="section-desc">These are acceptance conditions, not backlog suggestions. A feature is releasable only when its full journey, data behavior, accessibility, safety, and operations are complete.</p>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Required corrections to the current screen handoff</h3>
+    <div class="two-col">
+      <article class="spec-card">
+        <span class="card-label">PRODUCT &amp; COPY · 01–10</span>
+        <ol class="rule-list">
+          <li>Remove Parent and Mentor choices from participant onboarding.</li>
+          <li>Add focus and a genuine evening check-in flow.</li>
+          <li>Label all mood choices and add Prefer not to answer.</li>
+          <li>Replace abstract-only habit taps with the observable launch criteria in this page.</li>
+          <li>Correct the 2,340/3,000 display from 73% to 78% when that bar means absolute threshold progress.</li>
+          <li>Label leaderboard scores as period XP rather than lifetime XP.</li>
+          <li>Show eight top rows or make “Top” count dynamic; always pin the current user where permitted.</li>
+          <li>Rename talent percentages to 28-Day Growth Practice and explain the denominator.</li>
+          <li>Replace every usage-time, app, and category surface with final Daily Limit status only and the one atomic MVP v1 +130 reward.</li>
+          <li>Remove unsafe stranger, cold-exposure, punitive exercise, pain, or body-goal challenge seeds.</li>
+        </ol>
+      </article>
+      <article class="spec-card">
+        <span class="card-label">SCOPE &amp; QUALITY · 11–20</span>
+        <ol class="rule-list" start="11">
+          <li>Replace mentor chat/message UI with audited organization announcements.</li>
+          <li>Rename Clear All to Mark All Read; do not delete message history from that action.</li>
+          <li>Remove shaming, fear, “break the chain,” and “XP behind” pressure copy.</li>
+          <li>Show the exact habit/challenge XP and rank data supplied by the applicable server snapshot; +5, +30, +400, and the listed thresholds are launch defaults, not Flutter constants.</li>
+          <li>Hide the Monthly challenge tab for MVP.</li>
+          <li>Use allow-listed deep-link destinations only.</li>
+          <li>Replace predictive “At Risk” labels with factual filters such as no confirmed activity in a selected period.</li>
+          <li>Add the missing Home data and empty/error/partial/finalized states defined above.</li>
+          <li>Make every interaction semantic, keyboard/screen-reader operable, scalable, and non-color-dependent.</li>
+          <li>Complete human-reviewed English and Dutch content, truncation, plural, date, time, and safety QA.</li>
+        </ol>
+      </article>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Definition of Done</h3>
+    <div class="three-col">
+      <article class="spec-card gold"><span class="card-label">JOURNEY COMPLETENESS</span><h3>Every state is implemented</h3><ul class="rule-list"><li>Actor, permission, prerequisite, happy path, alternative, loading, empty, disabled, expired, denial, error, retry, and completion states match this specification.</li><li>Cohort-code tests cover normalization, invalid/expired/disabled/full codes, brute-force cooldown, concurrent last-seat reservations, retry, reservation expiry, duplicate email, rotation, and existing-member continuity.</li><li>All server transitions, timezone behavior, EN/NL copy, deep link, analytics event, and support outcome are approved.</li><li>Client and admin resolve the same definition, occurrence, and ruleset version IDs; no configurable catalog, XP, badge, rank label, or threshold remains a mobile constant.</li></ul></article>
+      <article class="spec-card"><span class="card-label">XP INTEGRITY</span><h3>Ledger survives reality</h3><ul class="rule-list"><li>Transactional, server-calculated, versioned, idempotent, append-only, reversal-safe awards store exact deltas and source snapshot IDs.</li><li>Tests cover two economy/rank versions, boundary activation, old and new day snapshots, an open challenge across activation, late completion, exact reversal, projection rebuild, and approved rank migration without repricing history.</li><li>Tests also cover double tap, retry, timeout, two devices, undo, duplicate native callback, day rollover, timezone migration, DST, and concurrent finalization.</li><li>Configured maxima, guards, exclusions, thresholds, tie rules, badge-version evidence, and projection rebuilds pass fixtures.</li></ul></article>
+      <article class="spec-card"><span class="card-label">DAILY LIMIT</span><h3>Binary and privacy-minimal</h3><ul class="rule-list"><li>Policy delivery, native monitoring, day-close finalization, status-only result, one-event reward, and H10 automation pass.</li><li>Denied/revoked permission, unsupported device, missing/incomplete native result, sync failure, and duplicate callback safely become unavailable or retry.</li><li>Schema/log/export scans verify no observed duration, app, domain, content, or category telemetry.</li></ul></article>
+      <article class="spec-card"><span class="card-label">SECURITY &amp; PRIVACY</span><h3>Proven, not claimed</h3><ul class="rule-list"><li>Firestore/function authorization, organization isolation, App Check, authentication, rate limits, audit, and deletion negative tests pass.</li><li>Every sensitive field has purpose, lawful basis, authorized visibility, indefinite-storage behavior, correction, export, deletion, and log-redaction behavior.</li><li>DPIA, DPO/legal, safeguarding, security, store disclosure, and data-processing approvals are recorded.</li></ul></article>
+      <article class="spec-card"><span class="card-label">QUALITY &amp; ACCESS</span><h3>Supported youth can use it</h3><ul class="rule-list"><li>Unit, integration, rules-emulator, migration, rollback, and end-to-end suites pass on supported versions and physical iOS/Android devices.</li><li>VoiceOver/TalkBack, 200% text, contrast, touch targets, focus order, reduced motion, non-color cues, and recovery errors pass.</li><li>English/Dutch dynamic content and notification variants pass human linguistic QA.</li></ul></article>
+      <article class="spec-card"><span class="card-label">OPERATIONS</span><h3>The team can run it</h3><ul class="rule-list"><li>Analytics and CSV fixture parity, suppression, formula escaping, expiration, and audit pass.</li><li>Monitoring, alert ownership, kill switches, incident response, backup/restore, deletion retry, support, and content-report runbooks are rehearsed.</li><li>No unresolved critical/high security, privacy, data-loss, or youth-safety issue remains.</li></ul></article>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3 class="subsection-title">Explicitly outside this MVP</h3>
+    <div class="table-wrap">
+      <table class="spec-table">
+        <thead><tr><th>Deferred capability</th><th>Reason / prerequisite before reconsideration</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Parent and mentor accounts</strong></td><td>Separate visibility, consent, safeguarding, delegation, and account-recovery model.</td></tr>
+          <tr><td><strong>Proof uploads and approvals</strong></td><td>Media minimization, moderation, permanent-storage policy, review SLA, appeals, and abuse response.</td></tr>
+          <tr><td><strong>Direct chat</strong></td><td>Safeguarding, moderation, availability expectation, reporting, escalation, and permanent-storage policy.</td></tr>
+          <tr><td><strong>Email reminder fallback</strong></td><td>Guardian/youth address rules, consent, preference center, deliverability, and safe subject lines.</td></tr>
+          <tr><td><strong>Certificates and real-world rewards</strong></td><td>Fraud, fulfillment, fairness, financial value, sponsorship, and safeguarding model.</td></tr>
+          <tr><td><strong>AI motivation</strong></td><td>Youth-safe evaluation, data controls, human escalation, transparency, and content liability.</td></tr>
+          <tr><td><strong>External profile sharing</strong></td><td>Launch flag is OFF pending DPO/product approval, field-level minimization, recipient warning, and misuse review.</td></tr>
+          <tr><td><strong>Advanced municipal reports / PDFs</strong></td><td>Approved outcome framework, suppression, contractual purpose, and validated interpretations.</td></tr>
+          <tr><td><strong>Multi-organization UI and extra languages</strong></td><td>Tenant administration, localized support, content governance, and full regression QA.</td></tr>
+          <tr><td><strong>Offline writes, SSO, social login, CRM integrations</strong></td><td>Conflict/idempotency model, provider/legal review, and dedicated security acceptance.</td></tr>
+          <tr><td><strong>Observed usage analytics</strong></td><td>Not a deferred product surface: ARES intentionally uses only the final Daily Limit status.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout warning"><strong>Release decision:</strong> advertise Daily Limit support only after the required platform entitlement/capability, supported-device matrix, denied/revoked permission behavior, status-only payload, and physical-device finalization tests are accepted. If unavailable, the rest of ARES remains usable: no XP is removed, the within-limit streak freezes, and no Daily Limit, H10, Within-Limit Week, or derivative target source contributes to leaderboard scoring. The configured noncompetitive lifetime-XP/badge opportunity is disclosed before permission.</div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p>ARES Design Handoff · Product Flows &amp; Business Requirements · <strong>Muse Agency</strong> for <strong>Skilled4Life</strong></p>
+  <p><a href="../index.html">Home</a> · <a href="../admin-flows.html">Admin flows</a></p>
+</footer>
+
+</body>
+</html>
