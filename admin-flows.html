@@ -173,7 +173,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
   <a class="brand" href="index.html"><span class="brand-dot"></span>ARES <span class="brand-sub">ADMIN HANDOFF</span></a>
   <div class="topnav-links">
     <a href="index.html">HOME</a>
-    <a href="mobile-mvp/flows.html">PLAYER FLOWS</a>
+    <a href="flows.html">PLAYER FLOWS</a>
     <a href="admin-flows.html" class="active" aria-current="page">ADMIN FLOWS</a>
   </div>
 </nav>
@@ -384,7 +384,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
     <h3>Cohort setup requirements</h3>
     <ol class="flow-steps">
       <li><span class="step-num">01</span><span>Create a draft with name, immutable internal ID, city/region if needed for reporting, IANA timezone, program start and end dates, capacity, and enrollment eligibility.</span></li>
-      <li><span class="step-num">02</span><span>Review or edit the launch-default habits, exact XP values, daily challenge schedule, weekly mission catalog, rank thresholds, badges, check-in prompts, weekly motto, motivational copy, and announcement defaults.</span></li>
+      <li><span class="step-num">02</span><span>Review or edit the launch-default habits, exact XP values, daily-target count/eligibility/bonus, required full set and bonus, daily challenge schedule, weekly mission catalog, rank thresholds, badges, check-in prompts, weekly motto, motivational copy, and announcement defaults.</span></li>
       <li><span class="step-num">03</span><span>Set the Daily Limit threshold and future effective program date. The threshold is policy data; no observed usage time is received.</span></li>
       <li><span class="step-num">04</span><span>Run readiness validation: complete EN/NL copy, at least six assigned non-H10 habits, valid schedule, approved safety review, capacity, date order, and no conflicting effective versions.</span></li>
       <li><span class="step-num">05</span><span>Activate. Archive later to stop new enrollment and future assignments while keeping historic memberships, events, and reporting intact.</span></li>
@@ -551,7 +551,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
   <div class="subsection">
     <h3 class="subsection-title">Habit management</h3>
     <div class="two-col">
-      <article class="spec-card gold"><span class="card-label">MVP CONTROLS</span><h3>Create and configure habits</h3><ul class="rule-list"><li>Create, duplicate, edit, enable, disable, reorder, and assign habits by cohort.</li><li>Manage reviewed EN/NL name, description, completion criterion, growth area, icon, and display category.</li><li>Enter one exact whole-number XP value for each habit version; no range field is used.</li><li>Configure the six-habit and full-set bonus values in the versioned economy.</li></ul></article>
+      <article class="spec-card gold"><span class="card-label">MVP CONTROLS</span><h3>Create and configure habits</h3><ul class="rule-list"><li>Create, duplicate, edit, enable, disable, reorder, and assign habits by cohort.</li><li>Manage reviewed EN/NL name, description, completion criterion, growth area, icon, and display category.</li><li>Enter one exact whole-number XP value for each habit version; no range field is used.</li><li>Configure target-eligible habits, the exact daily-target count and bonus, the required full set, and its additional bonus. Launch defaults are six eligible habits for +50 and the complete required set for another +50.</li></ul></article>
       <article class="spec-card"><span class="card-label">HISTORY CONTROLS</span><h3>Change the future, preserve the past</h3><ul class="rule-list"><li>Published or referenced habits are disabled, archived, or superseded—not destructively deleted.</li><li>XP and content changes create a new version with a future effective program-day boundary.</li><li>Today’s assignment and reward values remain frozen in the day snapshot.</li><li>A Daily Limit habit remains system-completed only from a finalized <code>within_limit</code> result.</li></ul></article>
     </div>
     <div class="table-wrap subsection" tabindex="0" aria-label="Scrollable launch-default habit table">
@@ -623,7 +623,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
         <thead><tr><th scope="col">Source</th><th scope="col">Launch default</th><th scope="col">MVP admin control</th><th scope="col">Frequency</th><th scope="col">Leaderboard</th></tr></thead>
         <tbody>
           <tr><td><strong>Assigned habit</strong></td><td class="num">+5</td><td>Exact XP per habit version</td><td>Each once per program day</td><td>Configurable eligibility; H10 default excluded</td></tr>
-          <tr><td><strong>Six-habit target</strong></td><td class="num">+50</td><td>Exact milestone bonus</td><td>Once per day</td><td>Default yes</td></tr>
+          <tr><td><strong>Daily habit target</strong></td><td class="num">6 eligible · +50</td><td>Eligible set, exact target count, exact milestone bonus</td><td>Once per day</td><td>Default yes</td></tr>
           <tr><td><strong>Full-set completion</strong></td><td class="num">+50</td><td>Exact additional milestone bonus</td><td>Once per day; cumulative with target</td><td>Default no</td></tr>
           <tr><td><strong>Morning check-in</strong></td><td class="num">+5</td><td>Launch value retained in MVP v1</td><td>Once per program date</td><td>Yes</td></tr>
           <tr><td><strong>Evening check-in</strong></td><td class="num">+5</td><td>Launch value retained in MVP v1</td><td>Once per program date; no pair bonus</td><td>Yes</td></tr>
@@ -635,7 +635,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
         </tbody>
       </table>
     </div>
-    <div class="callout"><strong>Configuration rule:</strong> XP controls accept one exact whole-number value, never a range. Draft changes require an impact preview and future effective date. Habit values freeze when the program day opens; challenge values freeze on the published occurrence; awarded ledger events always retain their original amount and ruleset version.</div>
+    <div class="callout"><strong>Configuration rule:</strong> XP controls accept one exact whole-number value, never a range. Draft changes require an impact preview and future effective date. Habit values, target eligibility/count/bonus, the required full set/full-set bonus, and leaderboard/streak flags freeze when the program day opens; challenge values freeze on the published occurrence; awarded ledger events always retain their original amount and ruleset version.</div>
   </div>
 
   <div class="subsection">
@@ -795,7 +795,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
           <tr><td><strong>Active participants</strong></td><td>Distinct active youth with a server-confirmed authenticated session or qualifying player event in the selected period. Push delivery and admin corrections do not count.</td><td>Show count and cohort-normalized rate.</td></tr>
           <tr><td><strong>Morning / evening check-in completion</strong></td><td>Completed valid check-in periods divided by eligible periods whose windows have closed, reported separately.</td><td>Do not combine into an XP pair bonus.</td></tr>
           <tr><td><strong>Habit completion</strong></td><td>Finalized completed eligible assigned occurrences divided by scheduled eligible occurrences.</td><td>Use the assignment snapshot for that program day.</td></tr>
-          <tr><td><strong>Six-habit attainment</strong></td><td>Finalized days with six distinct assigned non-H10 habits completed divided by eligible finalized days with at least six assigned non-H10 habits.</td><td>H10 never enters numerator or eligibility.</td></tr>
+          <tr><td><strong>Configured daily-target attainment</strong></td><td>Finalized days that met the program-day snapshot's target count divided by eligible finalized days whose snapshot contained enough target-eligible assignments.</td><td>Use the snapshotted eligible set/count; launch default is six and H10 is excluded.</td></tr>
           <tr><td><strong>Daily challenge completion</strong></td><td>Finalized completed daily occurrences divided by eligible published participant-occurrences whose deadlines closed.</td><td>Report the occurrence’s snapshotted XP and configuration version.</td></tr>
           <tr><td><strong>Weekly mission join / completion</strong></td><td>Distinct joins divided by eligible participant-occurrences; finalized completions divided by joined occurrences whose deadline closed.</td><td>Show join and completion separately.</td></tr>
           <tr><td><strong>Average XP earned</strong></td><td>Net finalized lifetime-XP deltas in the selected period divided by active participants.</td><td>Do not average current lifetime balances.</td></tr>
@@ -810,7 +810,7 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
   </div>
 
   <div class="two-col subsection">
-    <article class="spec-card gold"><span class="card-label">OVERVIEW</span><h3>Operational snapshot</h3><ul class="rule-list"><li>Organization/cohort/date filters and last-updated timestamp.</li><li>Active participants, separate check-in rates, habit completion, six-habit attainment, average XP, Daily Limit compliance/availability.</li><li>Cohort progress uses normalized rates; recent activity uses neutral administrative or milestone events.</li><li>A Top XP component, if shown, is a selected-cohort, opted-in alias leaderboard with at least five visible members—not a global named list.</li></ul></article>
+    <article class="spec-card gold"><span class="card-label">OVERVIEW</span><h3>Operational snapshot</h3><ul class="rule-list"><li>Organization/cohort/date filters and last-updated timestamp.</li><li>Active participants, separate check-in rates, habit completion, configured daily-target attainment, average XP, Daily Limit compliance/availability.</li><li>Cohort progress uses normalized rates; recent activity uses neutral administrative or milestone events.</li><li>A Top XP component, if shown, is a selected-cohort, opted-in alias leaderboard with at least five visible members—not a global named list.</li></ul></article>
     <article class="spec-card"><span class="card-label">ANALYTICS</span><h3>Explore and compare safely</h3><ul class="rule-list"><li>Day/week/month reporting windows, cohort comparison, metric definition tooltip, and downloadable governed report.</li><li>Suppress aggregate cells representing fewer than five participants.</li><li>Keep identity, check-in-answer, and aggregate export permissions separate.</li><li>Show loading, no data, filtered empty, suppressed, stale, partial, permission denied, and error states.</li></ul></article>
   </div>
 
@@ -1035,6 +1035,6 @@ code { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
 </section>
 
 </main>
-<footer class="footer"><strong>ARES ADMIN MVP</strong> · Product flows and business requirements · <a href="index.html">Home</a> · <a href="mobile-mvp/flows.html">Player flows</a></footer>
+<footer class="footer"><strong>ARES ADMIN MVP</strong> · Product flows and business requirements · <a href="index.html">Home</a> · <a href="flows.html">Player flows</a></footer>
 </body>
 </html>
